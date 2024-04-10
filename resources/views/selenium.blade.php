@@ -2,10 +2,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Date de la Selenium</title>
+    <title>The bet Armagedon</title>
 </head>
 <body>
-    <h1>Date obținute cu Selenium</h1>
-    <p>Datele de pe pagină sunt: {{ $data }}</p>
+    <h1>Betano</h1>
+    @foreach($betanoMatches as $keyMatchName => $match)
+        @if(!empty($match['1']))
+            <p>Match {{ $keyMatchName  }} 1 -> {{ $match['1'] }} 1 -> {{ $match['x'] }} 2-> {{ $match['2'] }}</p>
+        @endif
+    @endforeach
 </body>
 </html>

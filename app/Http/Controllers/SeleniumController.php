@@ -7,6 +7,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use Facebook\WebDriver\WebDriverWait;
 
 class SeleniumController extends Controller
 {
@@ -39,33 +40,50 @@ class SeleniumController extends Controller
             );
 
             // Așteaptă până când elementele sunt prezente și vizibile pe pagină
-            $driver->wait(10)->until(
+            $driver->wait(5)->until(
                 WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('vue-recycle-scroller__item-view'))
             );
 
+            // $wait = new WebDriverWait($driver, 5);
+            // $wait->until(
+            //     WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('vue-recycle-scroller__item-view'))
+            // );
+
             $matches = $driver->findElements(WebDriverBy::className('vue-recycle-scroller__item-view'));
-            $data = [];
-            // Iterează prin fiecare element pentru a extrage informațiile despre echipe și cote
+            $betanoMatches = [];
             foreach ($matches as $match) {
-                $teamName1Element = $match->findElement(WebDriverBy::xpath('.//a/div/div[1]/div[1]/span'));
+                $teamsElements = $match->findElements(WebDriverBy::className('tw-text-n-13-steel'));
+                //$teamName1Element = $match->findElement(WebDriverBy::xpath('.//a/div/div[1]/div[1]/span'));
+                $teamName1Element = $teamsElements[0];
                 $teamName1 = $teamName1Element->getText();
         
-                $teamName2Element = $match->findElement(WebDriverBy::xpath('.//a/div/div[1]/div[2]/span'));
+                $teamName2Element = $teamsElements[1];
                 $teamName2 = $teamName2Element->getText();
 
                 $key = "$teamName1-$teamName2";
-                
-                // Adăugare echipe și cote în array
-                $data[$key] = "cote ";
+
+                $betDetails = ['team1Name' => '','team2Name' => '', '1' => '' , 'x' => '' , '2' => ''];
+
+                $detailsBetElements = $match->findElements(WebDriverBy::className('tw-text-tertiary'));
+                $detailsBet1 = $detailsBetElements[0]->getText();
+                $detailsBetx = $detailsBetElements[1]->getText();
+                $detailsBet2 = $detailsBetElements[2]->getText();
+
+                $betDetails['team1Name'] = $teamName1;
+                $betDetails['team2Name'] = $teamName2;
+
+                $betDetails['1'] = $detailsBet1;
+                $betDetails['x'] = $detailsBetx;
+                $betDetails['2'] = $detailsBet2;
+
+                $betanoMatches[$key] = $betDetails;
             }
 
             // Închide driverul WebDriver
             $driver->quit();
-            dd($data);
+            //dd($betanoMatches);
             
-
-            // Returnare view cu datele obținute
-            return view('selenium', ['data' => $data]);
+            return view('selenium', compact("betanoMatches"));
         } catch (\Exception $e) {
             $driver->quit();
             dd($e);
