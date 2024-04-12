@@ -8,6 +8,8 @@ use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
+use Laravel\Dusk\Browser;
+use DOMDocument;
 
 class SeleniumController extends Controller
 {
@@ -25,12 +27,82 @@ class SeleniumController extends Controller
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
         try {
-            $betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
+            //$betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
+            $betanoMatches = $this->scrapeBetanoScript($capabilities);
+            //dd($betanoMatches);
             return view('selenium', compact("betanoMatches"));
         } catch (\Exception $e) {
             dd($e);
         }
     }
+    private function scrapeBetanoScript($capabilities)
+    {
+        $dataReturn = null;
+
+        // Creare un nou driver WebDriver pentru Selenium
+        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+
+        try {
+            // Accesează pagina Betano
+            $driver->get(self::BETANO_LIG1);
+
+            // Define XPath expression to target the desired script element
+            // $xpathExpression = "//script[contains(text(), 'window[\"initial_state\"]')]";
+
+            // // Așteaptă până când este prezent un element care să corespundă XPath-ului dat
+            // $wait = new WebDriverWait($driver, 10);
+            // $scriptElement = $wait->until(
+            //     WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::xpath($xpathExpression))
+            // );
+
+            $pageSource = $driver->getPageSource();
+            $driver->quit();
+
+            // Caută conținutul dorit în sursa paginii
+            $pattern = '/window\["initial_state"\]\s*=\s*(.*?)\s*}<\/script>/s';
+            preg_match($pattern, $pageSource, $matches);
+            //dd($matches);
+            $scriptContent = [];
+            if (isset($matches[1])) {
+                $initialStateJson = $matches[1]."}";
+                $scriptContent = json_decode($initialStateJson, true);
+            }
+
+            $driver->quit();
+            $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
+            foreach($matchesDataFromScripts as $matchScript){
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+
+                $teamName1 = $matchScript['participants'][0]['name'];
+                $teamName2 = $matchScript['participants'][1]['name'];
+
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+
+                $betDetails['team1Name'] = $teamName1;
+                $betDetails['team2Name'] = $teamName2;
+
+                $detailsBet1 = $matchScript['markets'][0]['selections'][0]['price'];
+                $detailsBetx = $matchScript['markets'][0]['selections'][1]['price'];
+                $detailsBet2 = $matchScript['markets'][0]['selections'][2]['price'];
+
+                $betDetails['1'] = $detailsBet1;
+                $betDetails['x'] = $detailsBetx;
+                $betDetails['2'] = $detailsBet2;
+                
+                $key = "$teamName1-$teamName2";
+                $dataReturn[$key] = $betDetails;
+            }
+            
+        } finally {
+            // Închide driver-ul la final
+            $driver->quit();
+        }
+
+        return $dataReturn;
+    }
+    
+
+
     private function scrapeDemoBetanoMatches($capabilities, $waitTimeout = 10, $waitPresenceTimeout = 5)
     {
         // Creare driver WebDriver pentru Firefox
