@@ -13,7 +13,10 @@ use DOMDocument;
 
 class SeleniumController extends Controller
 {
+    //fotbal liga 1
     private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
+    private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
+
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
 
     public function fetchData()
@@ -26,16 +29,19 @@ class SeleniumController extends Controller
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
+        $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
+        $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
         try {
             //$betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
-            $betanoMatches = $this->scrapeBetanoScript($capabilities);
-            //dd($betanoMatches);
-            return view('selenium', compact("betanoMatches"));
+            $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
+            $superbetMatches = $this->scrapeSuperbetWithXPathMethod($capabilities);
+            //dd($superbetMatches);
+            return view('selenium', compact("betanoMatches","superbetMatches"));
         } catch (\Exception $e) {
             dd($e);
         }
     }
-    private function scrapeBetanoScript($capabilities)
+    private function scrapeBetanoWithScriptMethod($capabilities)
     {
         $dataReturn = null;
 
@@ -99,6 +105,63 @@ class SeleniumController extends Controller
         }
 
         return $dataReturn;
+    }
+    private function scrapeSuperbetWithXPathMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+
+        try {
+            // Navigare către o pagină web
+            $driver->get(self::SUPERBET_LIG1);
+
+            // Așteaptă până când pagina este complet încărcată
+            $driver->wait($waitTimeout)->until(
+                function ($driver) {
+                    return $driver->executeScript('return document.readyState') === 'complete';
+                }
+            );
+
+            // Așteaptă până când elementele sunt prezente și vizibile pe pagină
+            $driver->wait($waitPresenceTimeout)->until(
+                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
+            );
+
+            $matches = $driver->findElements(WebDriverBy::className('single-event'));
+            $betanoMatches = [];
+            foreach ($matches as $match) {
+                $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
+                $teamName1Element = $teamsElements[0];
+                $teamName1 = $teamName1Element->getText();
+
+                $teamName2Element = $teamsElements[1];
+                $teamName2 = $teamName2Element->getText();
+
+                $key = "$teamName1-$teamName2";
+
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+                $betDetails['team1Name'] = $teamName1;
+                $betDetails['team2Name'] = $teamName2;
+
+                $detailsBetElements = $match->findElements(WebDriverBy::className('e2e-odd-current-value'));
+                if(!empty($detailsBetElements)){
+                    $detailsBet1 = $detailsBetElements[0]->getText();
+                    $detailsBetx = $detailsBetElements[1]->getText();
+                    $detailsBet2 = $detailsBetElements[2]->getText();
+
+                    $betDetails['1'] = $detailsBet1;
+                    $betDetails['x'] = $detailsBetx;
+                    $betDetails['2'] = $detailsBet2;
+                }
+                $betanoMatches[$key] = $betDetails;
+            }
+
+            return $betanoMatches;
+        } finally {
+            // Închide driverul WebDriver în blocul finally pentru a ne asigura că se închide întotdeauna
+            if (isset($driver)) {
+                $driver->quit();
+            }
+        }
+
     }
     
 
