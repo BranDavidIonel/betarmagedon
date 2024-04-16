@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SeleniumController;
+use App\Http\Controllers\FootballDataController;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', [SeleniumController::class, 'fetchData']);
+Route::get('/', [FootballDataController::class, 'fetchData']);

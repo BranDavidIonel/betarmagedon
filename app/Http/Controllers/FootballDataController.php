@@ -11,11 +11,13 @@ use Facebook\WebDriver\WebDriverWait;
 use Laravel\Dusk\Browser;
 use DOMDocument;
 
-class SeleniumController extends Controller
+class FootballDataController extends Controller
 {
-    //fotbal liga 1
+    //region fotbal liga 1
     private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
     private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
+    private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
+    //endregion
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
 
@@ -31,16 +33,18 @@ class SeleniumController extends Controller
 
         $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
+        $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
         try {
-            //$betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
+            $betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
             $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
-            $superbetMatches = $this->scrapeSuperbetWithXPathMethod($capabilities);
-            //dd($superbetMatches);
-            return view('selenium', compact("betanoMatches","superbetMatches"));
+            $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
+            $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
+            return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
         } catch (\Exception $e) {
             dd($e);
         }
     }
+    //region betano
     private function scrapeBetanoWithScriptMethod($capabilities)
     {
         $dataReturn = null;
@@ -106,7 +110,10 @@ class SeleniumController extends Controller
 
         return $dataReturn;
     }
-    private function scrapeSuperbetWithXPathMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+    //endregion
+    
+    //region superbet
+    private function scrapeSuperbetWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
 
         try {
@@ -163,9 +170,72 @@ class SeleniumController extends Controller
         }
 
     }
+    //endregion
+    //nu le ia pe toate ca la cele de mai sus
+    private function scrapeCasaPariurilorWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+
+        try {
+            // Navigare către o pagină web
+            $driver->get(self::CASAPARIURILOR_LIG1);
+
+            // Așteaptă până când pagina este complet încărcată
+            $driver->wait($waitTimeout)->until(
+                function ($driver) {
+                    return $driver->executeScript('return document.readyState') === 'complete';
+                }
+            );
+
+            // Așteaptă până când elementele sunt prezente și vizibile pe pagină
+            $driver->wait($waitPresenceTimeout)->until(
+                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('tablesorter-hasChildRow'))
+            );
+
+            $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
+            $betanoMatches = [];
+
+            foreach ($matches as $match) {
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+                $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
+                if(!empty($teamNamesElement)){
+                    $teamNames = $teamNamesElement->getText();
+                    $arrayNames = explode('-', $teamNames);
+
+                    $teamName1 = isset($arrayNames[0]) ? trim($arrayNames[0]) : "";
+
+                    $teamName2 = isset($arrayNames[1]) ? trim($arrayNames[1]) : "";
+                    $key = "$teamName1-$teamName2";
+                    $betDetails['team1Name'] = $teamName1;
+                    $betDetails['team2Name'] = $teamName2;
+                }
+                $detailsBetElements = $match->findElements(WebDriverBy::className('odds-value'));
+                if(!empty($detailsBetElements)){
+                    $detailsBet1 = $detailsBetElements[0]->getText();
+                    $detailsBetx = $detailsBetElements[1]->getText();
+                    $detailsBet2 = $detailsBetElements[2]->getText();
+                    //la data sa fii atent la data-value atribut are un numar 
+                    //pt class="col-date"
+
+                    $betDetails['1'] = $detailsBet1;
+                    $betDetails['x'] = $detailsBetx;
+                    $betDetails['2'] = $detailsBet2;
+                }
+                $betanoMatches[$key] = $betDetails;
+            }
+
+            return $betanoMatches;
+        } finally {
+            // Închide driverul WebDriver în blocul finally pentru a ne asigura că se închide întotdeauna
+            if (isset($driver)) {
+                $driver->quit();
+            }
+        }
+
+    }
+
     
 
-
+    //region test methods
     private function scrapeDemoBetanoMatches($capabilities, $waitTimeout = 10, $waitPresenceTimeout = 5)
     {
         // Creare driver WebDriver pentru Firefox
@@ -224,4 +294,5 @@ class SeleniumController extends Controller
             }
         }
     }
+    //endregion
 }

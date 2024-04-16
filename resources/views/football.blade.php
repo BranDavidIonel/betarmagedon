@@ -17,5 +17,11 @@
             <p>Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
         @endif
     @endforeach
+    <h1>Casa Pariurilor</h1>
+    @foreach($casapariurilorMatches as $keyMatchName => $match)
+        @if(!empty($match['1']))
+            <p>Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+        @endif
+    @endforeach
 </body>
 </html>
