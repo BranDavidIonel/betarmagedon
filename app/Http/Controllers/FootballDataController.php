@@ -39,6 +39,7 @@ class FootballDataController extends Controller
             $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
             $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
             $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
+            //dd($casapariurilorMatches);
             return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
         } catch (\Exception $e) {
             dd($e);
@@ -171,12 +172,13 @@ class FootballDataController extends Controller
 
     }
     //endregion
-    //nu le ia pe toate ca la cele de mai sus
+    
+    //region casa_pariurilor
+    //am folosit scroll ca sa pot lua pe toate 
     private function scrapeCasaPariurilorWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
 
         try {
-            // Navigare către o pagină web
             $driver->get(self::CASAPARIURILOR_LIG1);
 
             // Așteaptă până când pagina este complet încărcată
@@ -185,21 +187,30 @@ class FootballDataController extends Controller
                     return $driver->executeScript('return document.readyState') === 'complete';
                 }
             );
-
-            // Așteaptă până când elementele sunt prezente și vizibile pe pagină
-            $driver->wait($waitPresenceTimeout)->until(
-                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('tablesorter-hasChildRow'))
-            );
+            // Execută script JavaScript pentru a face scroll la partea de sus a paginii
+            $driver->executeScript('window.scrollTo(0, 0);');
 
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
-            $betanoMatches = [];
 
             foreach ($matches as $match) {
                 $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
                 $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
                 if(!empty($teamNamesElement)){
                     $teamNames = $teamNamesElement->getText();
+                    if(empty($teamNames)){
+                        $scrollHeight = $driver->executeScript('return document.body.scrollHeight;');
+                        $scrollDistance = $scrollHeight / 15; // Scrolează pe a 15 parte (putin) din înălțimea paginii
+                        $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
+                        sleep(1);
+                        $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
+                    }
+                }
+
+                if(!empty($teamNamesElement)){
+                    $teamNames = $teamNamesElement->getText();
                     $arrayNames = explode('-', $teamNames);
+                    // $driver->quit();
+                    // dd($teamNamesElement,$teamNames);
 
                     $teamName1 = isset($arrayNames[0]) ? trim($arrayNames[0]) : "";
 
@@ -208,11 +219,14 @@ class FootballDataController extends Controller
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
                 }
-                $detailsBetElements = $match->findElements(WebDriverBy::className('odds-value'));
-                if(!empty($detailsBetElements)){
-                    $detailsBet1 = $detailsBetElements[0]->getText();
-                    $detailsBetx = $detailsBetElements[1]->getText();
-                    $detailsBet2 = $detailsBetElements[2]->getText();
+                $elementBet1 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(2) > a > span'));
+                $elementBetx = $match->findElement(WebDriverBy::cssSelector('td:nth-child(3) > a > span'));
+                $elementBet2 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(4) > a > span'));
+                //$detailsBetElements = $match->findElements(WebDriverBy::className('odds-value'));
+                if(!empty($elementBet1 && !empty($elementBetx) && !empty($elementBet2))){
+                    $detailsBet1 = $elementBet1->getText();
+                    $detailsBetx = $elementBetx->getText();
+                    $detailsBet2 = $elementBet2->getText();
                     //la data sa fii atent la data-value atribut are un numar 
                     //pt class="col-date"
 
@@ -232,7 +246,7 @@ class FootballDataController extends Controller
         }
 
     }
-
+    //endregion
     
 
     //region test methods

@@ -6,21 +6,27 @@
 </head>
 <body>
     <h1>Betano</h1>
+    @php $indexBetano=0; @endphp
     @foreach($betanoMatches as $keyMatchName => $match)
         @if(!empty($match['1']))
-            <p>Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+            @php $indexBetano++; @endphp
+            <p>{{ $indexBetano }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
         @endif
     @endforeach
     <h1>Superbet</h1>
+    @php $indexSuperbet=0; @endphp
     @foreach($superbetMatches as $keyMatchName => $match)
         @if(!empty($match['1']))
-            <p>Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+            @php $indexSuperbet++; @endphp
+            <p>{{ $indexSuperbet }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
         @endif
     @endforeach
+    @php $indexCasaPariurilor=0; @endphp
     <h1>Casa Pariurilor</h1>
     @foreach($casapariurilorMatches as $keyMatchName => $match)
         @if(!empty($match['1']))
-            <p>Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+            @php $indexCasaPariurilor++; @endphp
+            <p>{{ $indexCasaPariurilor }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
         @endif
     @endforeach
 </body>
