@@ -10,7 +10,7 @@
     @foreach($betanoMatches as $keyMatchName => $match)
         @if(!empty($match['1']))
             @php $indexBetano++; @endphp
-            <p>{{ $indexBetano }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+            <p>{{ $indexBetano }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }} , date -> {{ $match['startTime'] }} {{ !empty($match['isLive']) ? ', is live now' : ""}}</p>
         @endif
     @endforeach
     <h1>Superbet</h1>

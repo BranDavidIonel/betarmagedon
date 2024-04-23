@@ -10,6 +10,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Laravel\Dusk\Browser;
 use DOMDocument;
+use Carbon\Carbon;
 
 class FootballDataController extends Controller
 {
@@ -31,11 +32,11 @@ class FootballDataController extends Controller
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
-        $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
-        $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
-        $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '']];
+        $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
+        $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
+        $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         try {
-            $betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
+            //$betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
             $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
             $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
             $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
@@ -57,22 +58,12 @@ class FootballDataController extends Controller
             // Accesează pagina Betano
             $driver->get(self::BETANO_LIG1);
 
-            // Define XPath expression to target the desired script element
-            // $xpathExpression = "//script[contains(text(), 'window[\"initial_state\"]')]";
-
-            // // Așteaptă până când este prezent un element care să corespundă XPath-ului dat
-            // $wait = new WebDriverWait($driver, 10);
-            // $scriptElement = $wait->until(
-            //     WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::xpath($xpathExpression))
-            // );
-
             $pageSource = $driver->getPageSource();
             $driver->quit();
 
-            // Caută conținutul dorit în sursa paginii
+            //caut scriptul care contine toate datele inceput si sfarsit
             $pattern = '/window\["initial_state"\]\s*=\s*(.*?)\s*}<\/script>/s';
             preg_match($pattern, $pageSource, $matches);
-            //dd($matches);
             $scriptContent = [];
             if (isset($matches[1])) {
                 $initialStateJson = $matches[1]."}";
@@ -82,15 +73,18 @@ class FootballDataController extends Controller
             $driver->quit();
             $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
             foreach($matchesDataFromScripts as $matchScript){
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
 
                 $teamName1 = $matchScript['participants'][0]['name'];
                 $teamName2 = $matchScript['participants'][1]['name'];
-
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+                $timestamp = $matchScript['startTime']/1000;
 
                 $betDetails['team1Name'] = $teamName1;
                 $betDetails['team2Name'] = $teamName2;
+
+                $dateStartMatch = Carbon::createFromTimestamp($timestamp);
+                $betDetails['startTime'] = $dateStartMatch->addHours(3)->format('d-m-Y H:i');
+                $betDetails['isLive'] = isset($matchScript['liveNow']) ? true : false;
 
                 $detailsBet1 = $matchScript['markets'][0]['selections'][0]['price'];
                 $detailsBetx = $matchScript['markets'][0]['selections'][1]['price'];
@@ -105,7 +99,6 @@ class FootballDataController extends Controller
             }
             
         } finally {
-            // Închide driver-ul la final
             $driver->quit();
         }
 
@@ -192,18 +185,24 @@ class FootballDataController extends Controller
 
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
 
+
             foreach ($matches as $match) {
                 $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
-                $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
-                if(!empty($teamNamesElement)){
-                    $teamNames = $teamNamesElement->getText();
-                    if(empty($teamNames)){
-                        $scrollHeight = $driver->executeScript('return document.body.scrollHeight;');
-                        $scrollDistance = $scrollHeight / 15; // Scrolează pe a 15 parte (putin) din înălțimea paginii
-                        $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
-                        sleep(1);
-                        $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
-                    }
+                try{
+                    $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
+
+                    if(!empty($teamNamesElement)){
+                        $teamNames = $teamNamesElement->getText();
+                        if(empty($teamNames)){
+                            $scrollHeight = $driver->executeScript('return document.body.scrollHeight;');
+                            $scrollDistance = $scrollHeight / 15; // Scrolează pe a 15 parte (putin) din înălțimea paginii
+                            $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
+                            sleep(1);
+                            $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
+                        }
+                    }   
+                }catch(\Exception $e){
+                    continue; // Treci la următorul meci
                 }
 
                 if(!empty($teamNamesElement)){
@@ -219,9 +218,13 @@ class FootballDataController extends Controller
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
                 }
-                $elementBet1 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(2) > a > span'));
-                $elementBetx = $match->findElement(WebDriverBy::cssSelector('td:nth-child(3) > a > span'));
-                $elementBet2 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(4) > a > span'));
+                try {
+                    $elementBet1 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(2) > a > span'));
+                    $elementBetx = $match->findElement(WebDriverBy::cssSelector('td:nth-child(3) > a > span'));
+                    $elementBet2 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(4) > a > span'));
+                }catch(\Exception $e){
+                    continue; // Treci la următorul meci
+                }
                 //$detailsBetElements = $match->findElements(WebDriverBy::className('odds-value'));
                 if(!empty($elementBet1 && !empty($elementBetx) && !empty($elementBet2))){
                     $detailsBet1 = $elementBet1->getText();
@@ -238,7 +241,10 @@ class FootballDataController extends Controller
             }
 
             return $betanoMatches;
-        } finally {
+        }catch (\Exception $e) {
+            echo "A apărut o eroare: " . $e->getMessage();
+            exit;
+        }finally {
             // Închide driverul WebDriver în blocul finally pentru a ne asigura că se închide întotdeauna
             if (isset($driver)) {
                 $driver->quit();
