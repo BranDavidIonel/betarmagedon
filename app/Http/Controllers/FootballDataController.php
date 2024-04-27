@@ -111,7 +111,7 @@ class FootballDataController extends Controller
     //region superbet
     private function scrapeSuperbetWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
-        $betanoMatches = [];
+        $superbetMatches = [];
         try {
             $driver->get(self::SUPERBET_LIG1);
 
@@ -133,7 +133,13 @@ class FootballDataController extends Controller
                 $matches = $cardElement->findElements(WebDriverBy::className('single-event'));
 
                 foreach ($matches as $match) {
-                    $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
+                    try{
+                        $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
+                        //capitalize -> hour and minutes get string 
+                        $hourMinutesElement = $match->findElement(WebDriverBy::className('capitalize'));
+                    }catch(\Exception $e){
+                        continue; //next match
+                    }
                     $teamName1Element = $teamsElements[0];
                     $teamName1 = $teamName1Element->getText();
     
@@ -146,13 +152,9 @@ class FootballDataController extends Controller
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
 
-                    //capitalize -> hour and minutes get string 
-                    $hourMinutesElement = $match->findElement(WebDriverBy::className('capitalize'));
                     $stringHourMinutes = $hourMinutesElement->getText();
                     $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',')+1);
                     list($hour, $minutes) = explode(':', trim($stringHourMinutes));
-                    // $driver->quit();
-                    // dd($stringHourMinutes,$hour,$minutes);
     
                     $convertedDate = DateConversionService::convertDateROtoCarbon($dateFormatRo);
                     $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(3)->format('d-m-Y H:i');
@@ -168,12 +170,12 @@ class FootballDataController extends Controller
                         $betDetails['x'] = $detailsBetx;
                         $betDetails['2'] = $detailsBet2;
                     }
-                    $betanoMatches[$key] = $betDetails;
+                    $superbetMatches[$key] = $betDetails;
                 }
 
             }
 
-            return $betanoMatches;
+            return $superbetMatches;
         } finally {
             if (isset($driver)) {
                 $driver->quit();
@@ -184,27 +186,26 @@ class FootballDataController extends Controller
     //endregion
     
     //region casa_pariurilor
-    //am folosit scroll ca sa pot lua pe toate 
+    //I am used scrol to get all matches 
     private function scrapeCasaPariurilorWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+        $casaPariurilorMatches = [];
 
         try {
             $driver->get(self::CASAPARIURILOR_LIG1);
-
-            // Așteaptă până când pagina este complet încărcată
             $driver->wait($waitTimeout)->until(
                 function ($driver) {
                     return $driver->executeScript('return document.readyState') === 'complete';
                 }
             );
-            // Execută script JavaScript pentru a face scroll la partea de sus a paginii
+            //get top of the page
             $driver->executeScript('window.scrollTo(0, 0);');
 
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
 
 
             foreach ($matches as $match) {
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
+                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
                 try{
                     $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
 
@@ -219,14 +220,12 @@ class FootballDataController extends Controller
                         }
                     }   
                 }catch(\Exception $e){
-                    continue; // Treci la următorul meci
+                    continue; //next match
                 }
 
                 if(!empty($teamNamesElement)){
                     $teamNames = $teamNamesElement->getText();
                     $arrayNames = explode('-', $teamNames);
-                    // $driver->quit();
-                    // dd($teamNamesElement,$teamNames);
 
                     $teamName1 = isset($arrayNames[0]) ? trim($arrayNames[0]) : "";
 
@@ -239,30 +238,35 @@ class FootballDataController extends Controller
                     $elementBet1 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(2) > a > span'));
                     $elementBetx = $match->findElement(WebDriverBy::cssSelector('td:nth-child(3) > a > span'));
                     $elementBet2 = $match->findElement(WebDriverBy::cssSelector('td:nth-child(4) > a > span'));
+                    $elementDateTime = $match->findElement(WebDriverBy::cssSelector('td.col-date[data-value]'));
+                    $dateTimeInMS = $elementDateTime->getAttribute('data-value');//date time in micro seconds
+                    
                 }catch(\Exception $e){
-                    continue; // Treci la următorul meci
+                    continue; //next match
                 }
-                //$detailsBetElements = $match->findElements(WebDriverBy::className('odds-value'));
+
                 if(!empty($elementBet1 && !empty($elementBetx) && !empty($elementBet2))){
                     $detailsBet1 = $elementBet1->getText();
                     $detailsBetx = $elementBetx->getText();
                     $detailsBet2 = $elementBet2->getText();
-                    //la data sa fii atent la data-value atribut are un numar 
-                    //pt class="col-date"
 
                     $betDetails['1'] = $detailsBet1;
                     $betDetails['x'] = $detailsBetx;
                     $betDetails['2'] = $detailsBet2;
+
+                    $timestamp = intval($dateTimeInMS) / 1000;
+                    $dateStartMatch = Carbon::createFromTimestamp($timestamp);
+                    $betDetails['startTime'] = $dateStartMatch->addHours(3)->format('d-m-Y H:i'); 
                 }
-                $betanoMatches[$key] = $betDetails;
+                $casaPariurilorMatches[$key] = $betDetails;
             }
 
-            return $betanoMatches;
+            return $casaPariurilorMatches;
         }catch (\Exception $e) {
             echo "A apărut o eroare: " . $e->getMessage();
+            $driver->quit();
             exit;
         }finally {
-            // Închide driverul WebDriver în blocul finally pentru a ne asigura că se închide întotdeauna
             if (isset($driver)) {
                 $driver->quit();
             }
