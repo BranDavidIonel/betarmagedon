@@ -11,6 +11,8 @@ use Facebook\WebDriver\WebDriverWait;
 use Laravel\Dusk\Browser;
 use DOMDocument;
 use Carbon\Carbon;
+//my class
+use App\Services\DateConversionService;
 
 class FootballDataController extends Controller
 {
@@ -24,7 +26,7 @@ class FootballDataController extends Controller
 
     public function fetchData()
     {
-        // Creare opțiuni pentru Firefox
+
         $firefoxOptions = new FirefoxOptions();
         $firefoxOptions->addArguments(['--headless']); // Rulează Firefox în mod headless (fără interfață grafică)
         
@@ -109,55 +111,70 @@ class FootballDataController extends Controller
     //region superbet
     private function scrapeSuperbetWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
-
+        $betanoMatches = [];
         try {
-            // Navigare către o pagină web
             $driver->get(self::SUPERBET_LIG1);
 
-            // Așteaptă până când pagina este complet încărcată
+            //wait until the page is ready
             $driver->wait($waitTimeout)->until(
                 function ($driver) {
                     return $driver->executeScript('return document.readyState') === 'complete';
                 }
             );
 
-            // Așteaptă până când elementele sunt prezente și vizibile pe pagină
             $driver->wait($waitPresenceTimeout)->until(
                 WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
             );
+            //events-by-date , is card with multiples matches group on date
+            $cardDatesElements = $driver->findElements(WebDriverBy::className('events-by-date'));
+            foreach($cardDatesElements as $cardElement){                
+                $dateMatchElement = $cardElement->findElement(WebDriverBy::className('events-date'));
+                $dateFormatRo = $dateMatchElement->getText();
+                $matches = $cardElement->findElements(WebDriverBy::className('single-event'));
 
-            $matches = $driver->findElements(WebDriverBy::className('single-event'));
-            $betanoMatches = [];
-            foreach ($matches as $match) {
-                $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
-                $teamName1Element = $teamsElements[0];
-                $teamName1 = $teamName1Element->getText();
+                foreach ($matches as $match) {
+                    $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
+                    $teamName1Element = $teamsElements[0];
+                    $teamName1 = $teamName1Element->getText();
+    
+                    $teamName2Element = $teamsElements[1];
+                    $teamName2 = $teamName2Element->getText();
+        
+                    $key = "$teamName1-$teamName2";
+    
+                    $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
+                    $betDetails['team1Name'] = $teamName1;
+                    $betDetails['team2Name'] = $teamName2;
 
-                $teamName2Element = $teamsElements[1];
-                $teamName2 = $teamName2Element->getText();
-
-                $key = "$teamName1-$teamName2";
-
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => ''];
-                $betDetails['team1Name'] = $teamName1;
-                $betDetails['team2Name'] = $teamName2;
-
-                $detailsBetElements = $match->findElements(WebDriverBy::className('e2e-odd-current-value'));
-                if(!empty($detailsBetElements)){
-                    $detailsBet1 = $detailsBetElements[0]->getText();
-                    $detailsBetx = $detailsBetElements[1]->getText();
-                    $detailsBet2 = $detailsBetElements[2]->getText();
-
-                    $betDetails['1'] = $detailsBet1;
-                    $betDetails['x'] = $detailsBetx;
-                    $betDetails['2'] = $detailsBet2;
+                    //capitalize -> hour and minutes get string 
+                    $hourMinutesElement = $match->findElement(WebDriverBy::className('capitalize'));
+                    $stringHourMinutes = $hourMinutesElement->getText();
+                    $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',')+1);
+                    list($hour, $minutes) = explode(':', trim($stringHourMinutes));
+                    // $driver->quit();
+                    // dd($stringHourMinutes,$hour,$minutes);
+    
+                    $convertedDate = DateConversionService::convertDateROtoCarbon($dateFormatRo);
+                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(3)->format('d-m-Y H:i');
+                    $betDetails['isLive'] = false;
+    
+                    $detailsBetElements = $match->findElements(WebDriverBy::className('e2e-odd-current-value'));
+                    if(!empty($detailsBetElements)){
+                        $detailsBet1 = $detailsBetElements[0]->getText();
+                        $detailsBetx = $detailsBetElements[1]->getText();
+                        $detailsBet2 = $detailsBetElements[2]->getText();
+    
+                        $betDetails['1'] = $detailsBet1;
+                        $betDetails['x'] = $detailsBetx;
+                        $betDetails['2'] = $detailsBet2;
+                    }
+                    $betanoMatches[$key] = $betDetails;
                 }
-                $betanoMatches[$key] = $betDetails;
+
             }
 
             return $betanoMatches;
         } finally {
-            // Închide driverul WebDriver în blocul finally pentru a ne asigura că se închide întotdeauna
             if (isset($driver)) {
                 $driver->quit();
             }

@@ -18,7 +18,7 @@
     @foreach($superbetMatches as $keyMatchName => $match)
         @if(!empty($match['1']))
             @php $indexSuperbet++; @endphp
-            <p>{{ $indexSuperbet }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }}</p>
+            <p>{{ $indexSuperbet }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }} , date -> {{ $match['startTime'] }} {{ !empty($match['isLive']) ? ', is live now' : ""}}</p>
         @endif
     @endforeach
     @php $indexCasaPariurilor=0; @endphp
