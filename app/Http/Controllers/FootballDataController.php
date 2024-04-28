@@ -9,17 +9,21 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Laravel\Dusk\Browser;
-use DOMDocument;
 use Carbon\Carbon;
 //my class
 use App\Services\DateConversionService;
 
 class FootballDataController extends Controller
 {
-    //region fotbal liga 1
+    //region fotbal liga 1 links
     private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
     private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
     private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
+    //endregion
+    //region fotbal liga 2 links
+    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-2/17524/";
+    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-liga-2-playoff?ti=47047";
+    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-2";
     //endregion
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
@@ -42,12 +46,142 @@ class FootballDataController extends Controller
             $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
             $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
             $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
-            //dd($casapariurilorMatches);
+            $searchRezultMatches = [];
+            foreach($betanoMatches as $betanoMatch){
+                if(!$this->validateMatch($betanoMatch)){
+                    continue;//next match search 
+                }
+                $findMatchSuperbet = $this->searchMatch($betanoMatch, $superbetMatches);
+                if(!$this->validateMatch($findMatchSuperbet)){
+                    continue;//next match search 
+                }
+                $findMatchCasapariurilor = $this->searchMatch($betanoMatch, $casapariurilorMatches);
+                if(!$this->validateMatch($findMatchCasapariurilor)){
+                    continue;//next match search 
+                }
+                $searchProfit = $this->getIsProfitMatch($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
+                if(!empty($searchProfit)){
+                    $searchRezultMatches[]= ['matchAData' => $betanoMatch, 'resultData' => $searchProfit];
+                }                
+            }
+
+            dd($searchRezultMatches);
+
             return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
         } catch (\Exception $e) {
             dd($e);
         }
     }
+    private function searchMatch($matchFind,$matchesSearch){
+        $dateFind = $matchFind['startTime'];
+        $team1NameFind = $matchFind['team1Name'];
+        $team2NameFind = $matchFind['team2Name'];
+
+        $firstLetterTeam1Find = mb_substr($team1NameFind, 0, 1, 'UTF-8');
+        $firstLetterTeam1Find = mb_strtoupper($firstLetterTeam1Find, 'UTF-8');
+
+        $firstLetterTeam2Find = mb_substr($team2NameFind, 0, 1, 'UTF-8');
+        $firstLetterTeam2Find = mb_strtoupper($firstLetterTeam2Find, 'UTF-8');
+
+
+        foreach($matchesSearch as $matchSearch){
+            $dateSearch = $matchSearch['startTime'];
+            $team1NameSearch = $matchSearch['team1Name'];
+            $team2NameSearch = $matchSearch['team2Name'];
+
+            $firstLetterTeam1Search = mb_substr($team1NameSearch, 0, 1, 'UTF-8');
+            $firstLetterTeam1Search = mb_strtoupper($firstLetterTeam1Search, 'UTF-8');
+    
+            $firstLetterTeam2Search= mb_substr($team2NameSearch, 0, 1, 'UTF-8');
+            $firstLetterTeam2Search = mb_strtoupper($firstLetterTeam2Search, 'UTF-8');
+
+            if($dateSearch == $dateFind && 
+            ($firstLetterTeam1Find == $firstLetterTeam1Search) && 
+            ($firstLetterTeam2Find == $firstLetterTeam2Search)){
+                return $matchSearch;
+            }
+        }
+
+        return false;
+    }
+
+
+    private function getIsProfitMatch($matchA,$matchB,$matchC){
+        if(!$this->validateMatch($matchA)){
+            return false;
+        }
+
+        $Ateam1name = $matchA['team1Name'];
+        $Ateam2name = $matchA['team2Name'];
+        $Abet1 = $matchA['1'];
+        $Abetx = $matchA['x'];
+        $Abet2 = $matchA['2'];
+        $AstartTime = $matchA['startTime'];
+        $AisLive = $matchA['isLive'];
+
+        if(!$this->validateMatch($matchB)){
+            return false;
+        }
+        $Bteam1name = $matchB['team1Name'];
+        $Bteam2name = $matchB['team2Name'];
+        $Bbet1 = $matchB['1'];
+        $Bbetx = $matchB['x'];
+        $Bbet2 = $matchB['2'];
+        $BstartTime = $matchB['startTime'];
+        $BisLive = $matchB['isLive'];
+
+
+        if(!$this->validateMatch($matchC)){
+            return false;
+        }
+
+        $Cteam1name = $matchC['team1Name'];
+        $Cteam2name = $matchC['team2Name'];
+        $Cbet1 = $matchC['1'];
+        $Cbetx = $matchC['x'];
+        $Cbet2 = $matchC['2'];
+        $CstartTime = $matchC['startTime'];
+        $CisLive = $matchC['isLive'];
+
+        $maxBet1 = max($Abet1,$Bbet1,$Cbet1);
+        $maxBetx = max($Abetx,$Bbetx,$Cbetx);
+        $maxBet2 = max($Abet2,$Bbet2,$Cbet2);
+
+        //if the reverse of the odds is less than 1 , then it is profit
+        $reverseOdds = 1/floatval($maxBet1) + 1/floatval($maxBetx) + 1/floatval($maxBet2);
+        $returnData = ['reversOdds' => 0, 'isProfit' => false, 'maxBets'=>[ '1' => $maxBet1, 'x' => $maxBetx, '2' => $maxBet2]];
+        $returnData['reversOdds'] = $reverseOdds;
+        if($reverseOdds < 1){
+            $returnData['isProfit'] = true;
+        }
+
+        return $returnData;
+
+    }
+
+    private function validateMatch($match){
+        if(empty($match)){
+            return false;
+        }
+        $team1name = $match['team1Name'];
+        $team2name = $match['team2Name'];
+        $bet1 = $match['1'];
+        $betx = $match['x'];
+        $bet2 = $match['2'];
+        $startTime = $match['startTime'];
+        $isLive = $match['isLive'];
+        if(empty($team1name) || empty($team2name) || empty($bet1) || empty($betx) || empty($bet2) || empty($startTime)){
+            return false;
+        }
+        //now I don't want live
+        if(!empty($isLive)){
+            return false;
+        }
+
+        return true;
+    }
+
+
     //region betano
     private function scrapeBetanoWithScriptMethod($capabilities)
     {
@@ -275,7 +409,6 @@ class FootballDataController extends Controller
     }
     //endregion
     
-
     //region test methods
     private function scrapeDemoBetanoMatches($capabilities, $waitTimeout = 10, $waitPresenceTimeout = 5)
     {
