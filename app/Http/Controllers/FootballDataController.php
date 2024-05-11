@@ -12,18 +12,24 @@ use Laravel\Dusk\Browser;
 use Carbon\Carbon;
 //my class
 use App\Services\DateConversionService;
+use App\Helpers\StringHelper;
 
 class FootballDataController extends Controller
 {
     //region fotbal liga 1 links
-    private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
-    private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
-    private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
+    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
+    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
+    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
     //endregion
     //region fotbal liga 2 links
     // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-2/17524/";
     // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-liga-2-playoff?ti=47047";
     // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-2";
+    //endregion
+    //region germania bundesliga
+    private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/";
+    private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245";
+    private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga";
     //endregion
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
@@ -77,27 +83,17 @@ class FootballDataController extends Controller
         $team1NameFind = $matchFind['team1Name'];
         $team2NameFind = $matchFind['team2Name'];
 
-        $firstLetterTeam1Find = mb_substr($team1NameFind, 0, 1, 'UTF-8');
-        $firstLetterTeam1Find = mb_strtoupper($firstLetterTeam1Find, 'UTF-8');
-
-        $firstLetterTeam2Find = mb_substr($team2NameFind, 0, 1, 'UTF-8');
-        $firstLetterTeam2Find = mb_strtoupper($firstLetterTeam2Find, 'UTF-8');
-
 
         foreach($matchesSearch as $matchSearch){
             $dateSearch = $matchSearch['startTime'];
             $team1NameSearch = $matchSearch['team1Name'];
             $team2NameSearch = $matchSearch['team2Name'];
 
-            $firstLetterTeam1Search = mb_substr($team1NameSearch, 0, 1, 'UTF-8');
-            $firstLetterTeam1Search = mb_strtoupper($firstLetterTeam1Search, 'UTF-8');
+            $percentFindTeam1 = calculateSimilarityStringsPercentage($team1NameFind, $team1NameSearch);
+            $percentFindTeam2 = calculateSimilarityStringsPercentage($team2NameFind, $team2NameSearch);
     
-            $firstLetterTeam2Search= mb_substr($team2NameSearch, 0, 1, 'UTF-8');
-            $firstLetterTeam2Search = mb_strtoupper($firstLetterTeam2Search, 'UTF-8');
 
-            if($dateSearch == $dateFind && 
-            ($firstLetterTeam1Find == $firstLetterTeam1Search) && 
-            ($firstLetterTeam2Find == $firstLetterTeam2Search)){
+            if($dateSearch == $dateFind && ($percentFindTeam1 > 50 && $percentFindTeam2 > 50)){
                 return $matchSearch;
             }
         }
