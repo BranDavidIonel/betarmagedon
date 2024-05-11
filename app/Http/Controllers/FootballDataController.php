@@ -24,10 +24,28 @@ class FootballDataController extends Controller
     //endregion
 
     //region germania bundesliga
-    private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/";
-    private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245";
-    private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga";
+    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/";
+    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
+    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
     //endregion
+
+    private array $dataUrlSearch = [
+        'liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
+        ],
+        "bundesliga" =>[
+            "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
+        ],
+        "premier_league" =>[
+            "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
+        ]
+    ];
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
 
@@ -45,40 +63,50 @@ class FootballDataController extends Controller
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         try {
-            Log::info("begin search");
-            $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
-            $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
-            $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
-            $searchRezultMatches = [];
-            foreach($betanoMatches as $betanoMatch){
-                if(!$this->validateMatch($betanoMatch)){
-                    continue;//next match search 
-                }
-                $findMatchSuperbet = $this->searchMatch($betanoMatch, $superbetMatches);
-                if(!$this->validateMatch($findMatchSuperbet)){
-                    continue;//next match search 
-                }
-                $findMatchCasapariurilor = $this->searchMatch($betanoMatch, $casapariurilorMatches);
-                if(!$this->validateMatch($findMatchCasapariurilor)){
-                    continue;//next match search 
-                }
-                $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
-                if(!empty($searchProfit)){
-                    $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor], 
-                                            'resultData' => $searchProfit];
-                }                
-            }
-            $searhHasProfit = $this->hasProfitData($searchRezultMatches);
-            
-            if(empty($searhHasProfit)){
-                Log::info("Nimic nu ii");
-            }else{
-                Log::info("Am gasit ceva aici:",$searhHasProfit);
-            }
+            $matchesUrls = $this->dataUrlSearch;
+            foreach($matchesUrls as $keyLigName => $urlData){
+                $randomNumberSleep = random_int(1, 7);
+                sleep($randomNumberSleep);
+                Log::info("begin search for: $keyLigName");
+                $urlBetano = $urlData['betano_url'];
+                $urlSuperbet = $urlData['suberbet_url'];
+                $urlCasapariurilor = $urlData['casapariurilor_url'];
+                //dd($urlBetano,$urlSuperbet,$urlCasapariurilor);
 
-            Log::info('Rezult marches details:', $searchRezultMatches);
-            //dd($searchRezultMatches);
-            Log::info("end search");
+                $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano ,$capabilities);
+                $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($urlSuperbet ,$capabilities);
+                $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($urlCasapariurilor ,$capabilities);
+                $searchRezultMatches = [];
+                foreach($betanoMatches as $betanoMatch){
+                    if(!$this->validateMatch($betanoMatch)){
+                        continue;//next match search 
+                    }
+                    $findMatchSuperbet = $this->searchMatch($betanoMatch, $superbetMatches);
+                    if(!$this->validateMatch($findMatchSuperbet)){
+                        continue;//next match search 
+                    }
+                    $findMatchCasapariurilor = $this->searchMatch($betanoMatch, $casapariurilorMatches);
+                    if(!$this->validateMatch($findMatchCasapariurilor)){
+                        continue;//next match search 
+                    }
+                    $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
+                    if(!empty($searchProfit)){
+                        $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor], 
+                                                'resultData' => $searchProfit];
+                    }                
+                }
+                $searhHasProfit = $this->hasProfitData($searchRezultMatches);
+                
+                if(empty($searhHasProfit)){
+                    Log::info("Nimic nu ii");
+                }else{
+                    Log::info("Am gasit ceva aici:",$searhHasProfit);
+                }
+
+                Log::info('Rezult marches details:', $searchRezultMatches);
+                //dd($searchRezultMatches);
+                Log::info("end search for:$keyLigName");
+            }
 
             return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
         } catch (\Exception $e) {
@@ -198,7 +226,7 @@ class FootballDataController extends Controller
     //endregion
 
     //region betano
-    private function scrapeBetanoWithScriptMethod($capabilities)
+    private function scrapeBetanoWithScriptMethod($urlSearchMatches, $capabilities)
     {
         $dataReturn = null;
 
@@ -207,7 +235,7 @@ class FootballDataController extends Controller
 
         try {
             // Accesează pagina Betano
-            $driver->get(self::BETANO_LIG1);
+            $driver->get($urlSearchMatches);
 
             $pageSource = $driver->getPageSource();
             $driver->quit();
@@ -258,11 +286,11 @@ class FootballDataController extends Controller
     //endregion
     
     //region superbet
-    private function scrapeSuperbetWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+    private function scrapeSuperbetWithClassNameMethod($urlSearchMatches ,$capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
         $superbetMatches = [];
         try {
-            $driver->get(self::SUPERBET_LIG1);
+            $driver->get($urlSearchMatches);
 
             //wait until the page is ready
             $driver->wait($waitTimeout)->until(
@@ -336,12 +364,12 @@ class FootballDataController extends Controller
     
     //region casa_pariurilor
     //I am used scrol to get all matches 
-    private function scrapeCasaPariurilorWithClassNameMethod($capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+    private function scrapeCasaPariurilorWithClassNameMethod($urlSearchMatches, $capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
         $casaPariurilorMatches = [];
 
         try {
-            $driver->get(self::CASAPARIURILOR_LIG1);
+            $driver->get($urlSearchMatches);
             $driver->wait($waitTimeout)->until(
                 function ($driver) {
                     return $driver->executeScript('return document.readyState') === 'complete';
