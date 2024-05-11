@@ -10,6 +10,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Laravel\Dusk\Browser;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 //my class
 use App\Services\DateConversionService;
 use App\Helpers\StringHelper;
@@ -21,11 +22,7 @@ class FootballDataController extends Controller
     // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
     // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
     //endregion
-    //region fotbal liga 2 links
-    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-2/17524/";
-    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-liga-2-playoff?ti=47047";
-    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-2";
-    //endregion
+
     //region germania bundesliga
     private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/";
     private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245";
@@ -48,7 +45,7 @@ class FootballDataController extends Controller
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         try {
-            //$betanoMatches = $this->scrapeDemoBetanoMatches($capabilities);
+            Log::info("begin search");
             $betanoMatches = $this->scrapeBetanoWithScriptMethod($capabilities);
             $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($capabilities);
             $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($capabilities);
@@ -65,18 +62,40 @@ class FootballDataController extends Controller
                 if(!$this->validateMatch($findMatchCasapariurilor)){
                     continue;//next match search 
                 }
-                $searchProfit = $this->getIsProfitMatch($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
+                $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
                 if(!empty($searchProfit)){
-                    $searchRezultMatches[]= ['matchAData' => $betanoMatch, 'resultData' => $searchProfit];
+                    $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor], 
+                                            'resultData' => $searchProfit];
                 }                
             }
+            $searhHasProfit = $this->hasProfitData($searchRezultMatches);
+            
+            if(empty($searhHasProfit)){
+                Log::info("Nimic nu ii");
+            }else{
+                Log::info("Am gasit ceva aici:",$searhHasProfit);
+            }
 
-            dd($searchRezultMatches);
+            Log::info('Rezult marches details:', $searchRezultMatches);
+            //dd($searchRezultMatches);
+            Log::info("end search");
 
             return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
         } catch (\Exception $e) {
             dd($e);
         }
+    }
+    //region search is profit match
+    private function hasProfitData($profitData){
+        if (isset($profitData) && is_array($profitData) && count($profitData) > 0) {
+            foreach ($profitData as $data) {
+                if (isset($data['resultData']['isProfit']) && $data['resultData']['isProfit'] === true) {
+                    $matchInfo = $data['matchesData'];
+                    return $matchInfo;
+                }
+            }
+        }
+        return false;
     }
     private function searchMatch($matchFind,$matchesSearch){
         $dateFind = $matchFind['startTime'];
@@ -102,7 +121,7 @@ class FootballDataController extends Controller
     }
 
 
-    private function getIsProfitMatch($matchA,$matchB,$matchC){
+    private function getProfitMatchData($matchA,$matchB,$matchC){
         if(!$this->validateMatch($matchA)){
             return false;
         }
@@ -176,7 +195,7 @@ class FootballDataController extends Controller
 
         return true;
     }
-
+    //endregion
 
     //region betano
     private function scrapeBetanoWithScriptMethod($capabilities)
