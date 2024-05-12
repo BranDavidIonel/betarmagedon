@@ -17,34 +17,38 @@ use App\Helpers\StringHelper;
 
 class FootballDataController extends Controller
 {
-    //region fotbal liga 1 links
-    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/";
-    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate";
-    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1";
-    //endregion
-
-    //region germania bundesliga
-    // private const BETANO_LIG1 = "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/";
-    // private const SUPERBET_LIG1 = "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
-    // private const CASAPARIURILOR_LIG1 = "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
-    //endregion
 
     private array $dataUrlSearch = [
-        'liga1' => [
+        'ro_liga1' => [
             "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
             "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate",
             "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
         ],
-        "bundesliga" =>[
+        "germania_bundesliga" =>[
             "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
             "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
             "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
         ],
-        "premier_league" =>[
+        "anglia_premier_league" =>[
             "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
             "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
             "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
-        ]
+        ],
+        'italia_seria_a' =>[
+            'betano_url' => "https://ro.betano.com/sport/fotbal/competitii/italia/87/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/italia/italia-serie-a/toate?ti=104",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/italia-serie-a"
+        ],
+        'franta_liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/franta/ligue-1/215/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/franta/franta-ligue-1/toate?ti=100",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/franta-ligue-1"
+        ],
+        'turcia_liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/turcia/11384/",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/turcia/turcia-super-lig/toate?ti=323",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
+        ],
     ];
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
@@ -100,10 +104,10 @@ class FootballDataController extends Controller
                 if(empty($searhHasProfit)){
                     Log::info("Nimic nu ii");
                 }else{
-                    Log::info("Am gasit ceva aici:",$searhHasProfit);
+                    Log::alert("Am gasit ceva aici:",$searhHasProfit);
                 }
 
-                Log::info('Rezult marches details:', $searchRezultMatches);
+                Log::info('Rezult matches details:', $searchRezultMatches);
                 //dd($searchRezultMatches);
                 Log::info("end search for:$keyLigName");
             }
@@ -118,7 +122,8 @@ class FootballDataController extends Controller
         if (isset($profitData) && is_array($profitData) && count($profitData) > 0) {
             foreach ($profitData as $data) {
                 if (isset($data['resultData']['isProfit']) && $data['resultData']['isProfit'] === true) {
-                    $matchInfo = $data['matchesData'];
+                    $reversOdds = isset($data['resultData']['reversOdds']) ? $data['resultData']['reversOdds'] : 0;
+                    $matchInfo = ['reversOdds' => $reversOdds , 'details' => $data['matchesData']];
                     return $matchInfo;
                 }
             }
@@ -140,7 +145,7 @@ class FootballDataController extends Controller
             $percentFindTeam2 = calculateSimilarityStringsPercentage($team2NameFind, $team2NameSearch);
     
 
-            if($dateSearch == $dateFind && ($percentFindTeam1 > 50 && $percentFindTeam2 > 50)){
+            if($dateSearch == $dateFind && ($percentFindTeam1 > 60 && $percentFindTeam2 > 60)){
                 return $matchSearch;
             }
         }
