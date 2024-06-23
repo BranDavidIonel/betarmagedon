@@ -19,6 +19,11 @@ class FootballDataController extends Controller
 {
 
     private array $dataUrlSearch = [
+        'euro2024' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/international/euro-2024-gra/toate?ti=16144&cpi=1&ct=m",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/euro-2024-meciuri"
+        ],
         'ro_liga1' => [
             "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
             "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate",
@@ -63,6 +68,7 @@ class FootballDataController extends Controller
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
+        $returnAllMathcesData = ['league_name' => ['betano_matches' => [], 'suberbet_matches' => [], 'casapariurilor_matches' => []]];
         $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
@@ -75,11 +81,22 @@ class FootballDataController extends Controller
                 $urlBetano = $urlData['betano_url'];
                 $urlSuperbet = $urlData['suberbet_url'];
                 $urlCasapariurilor = $urlData['casapariurilor_url'];
-                //dd($urlBetano,$urlSuperbet,$urlCasapariurilor);
 
                 $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano ,$capabilities);
+                //betano is the main site where I searched matches ( if don't exist don't search to others sites)
+                if(empty($betanoMatches)){
+                    Log::info("Nu gasit nici un meci la betano in liga ($keyLigName)");
+                    continue;
+                }
                 $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($urlSuperbet ,$capabilities);
                 $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($urlCasapariurilor ,$capabilities);
+
+                $returnAllMathcesData[$keyLigName] = [
+                    'betano_matches' => $betanoMatches, 
+                    'suberbet_matches' => $superbetMatches, 
+                    'casapariurilor_matches' => $casapariurilorMatches
+                ];
+
                 $searchRezultMatches = [];
                 foreach($betanoMatches as $betanoMatch){
                     if(!$this->validateMatch($betanoMatch)){
@@ -108,11 +125,10 @@ class FootballDataController extends Controller
                 }
 
                 Log::info('Rezult matches details:', $searchRezultMatches);
-                //dd($searchRezultMatches);
                 Log::info("end search for:$keyLigName");
             }
 
-            return view('football', compact("betanoMatches","superbetMatches","casapariurilorMatches"));
+            return view('football', compact("returnAllMathcesData"));
         } catch (\Exception $e) {
             dd($e);
         }
@@ -233,7 +249,7 @@ class FootballDataController extends Controller
     //region betano
     private function scrapeBetanoWithScriptMethod($urlSearchMatches, $capabilities)
     {
-        $dataReturn = null;
+        $dataReturn = [];
 
         // Creare un nou driver WebDriver pentru Selenium
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
@@ -259,6 +275,10 @@ class FootballDataController extends Controller
             foreach($matchesDataFromScripts as $matchScript){
                 $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
 
+                //don't exist the match 
+                if(!isset($matchScript['participants'][0]['name']) || !isset($matchScript['participants'][1]['name'])){
+                    continue;
+                }
                 $teamName1 = $matchScript['participants'][0]['name'];
                 $teamName2 = $matchScript['participants'][1]['name'];
                 $timestamp = $matchScript['startTime']/1000;
@@ -291,22 +311,28 @@ class FootballDataController extends Controller
     //endregion
     
     //region superbet
-    private function scrapeSuperbetWithClassNameMethod($urlSearchMatches ,$capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
+    private function scrapeSuperbetWithClassNameMethod($urlSearchMatches ,$capabilities,$waitTimeout = 5, $waitPresenceTimeout = 5){
         $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
         $superbetMatches = [];
         try {
             $driver->get($urlSearchMatches);
-
+            try{
             //wait until the page is ready
-            $driver->wait($waitTimeout)->until(
-                function ($driver) {
-                    return $driver->executeScript('return document.readyState') === 'complete';
-                }
-            );
-
-            $driver->wait($waitPresenceTimeout)->until(
-                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
-            );
+                $driver->wait($waitTimeout)->until(
+                    function ($driver) {
+                        return $driver->executeScript('return document.readyState') === 'complete';
+                    }
+                );
+                
+                
+                $driver->wait($waitPresenceTimeout)->until(
+                    WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
+                );
+            } catch (\Exception $e) {
+                //Facebook\WebDriver\Exception\TimeoutException $e
+                // Return default data if TimeoutException is encountered                
+                return $superbetMatches;
+            }
             //events-by-date , is card with multiples matches group on date
             $cardDatesElements = $driver->findElements(WebDriverBy::className('events-by-date'));
             foreach($cardDatesElements as $cardElement){                
