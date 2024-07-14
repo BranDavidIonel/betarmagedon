@@ -56,15 +56,14 @@ class FootballDataController extends Controller
         ],
     ];
 
-    private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adresa Selenium Server
+    private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adress Selenium Server
 
     public function fetchData()
     {
 
         $firefoxOptions = new FirefoxOptions();
-        $firefoxOptions->addArguments(['--headless']); // Rulează Firefox în mod headless (fără interfață grafică)
+        $firefoxOptions->addArguments(['--headless']); 
         
-        // Creare capacitații dorite pentru Firefox
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
@@ -85,7 +84,7 @@ class FootballDataController extends Controller
                 $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano ,$capabilities);
                 //betano is the main site where I searched matches ( if don't exist don't search to others sites)
                 if(empty($betanoMatches)){
-                    Log::info("Nu gasit nici un meci la betano in liga ($keyLigName)");
+                    Log::info("No matches were found for betano in the league ($keyLigName)");
                     continue;
                 }
                 $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($urlSuperbet ,$capabilities);
@@ -119,9 +118,9 @@ class FootballDataController extends Controller
                 $searhHasProfit = $this->hasProfitData($searchRezultMatches);
                 
                 if(empty($searhHasProfit)){
-                    Log::info("Nimic nu ii");
+                    Log::info("I didn't find anything");
                 }else{
-                    Log::alert("Am gasit ceva aici:",$searhHasProfit);
+                    Log::alert("Bingo I found some sure match:",$searhHasProfit);
                 }
 
                 Log::info('Rezult matches details:', $searchRezultMatches);
@@ -207,9 +206,9 @@ class FootballDataController extends Controller
         $CstartTime = $matchC['startTime'];
         $CisLive = $matchC['isLive'];
 
-        $maxBet1 = max($Abet1,$Bbet1,$Cbet1);
-        $maxBetx = max($Abetx,$Bbetx,$Cbetx);
-        $maxBet2 = max($Abet2,$Bbet2,$Cbet2);
+        $maxBet1 = max($Abet1,$Bbet1,$Cbet1);//best odds if the first team wins
+        $maxBetx = max($Abetx,$Bbetx,$Cbetx);//the best odds if it is a draw
+        $maxBet2 = max($Abet2,$Bbet2,$Cbet2);//best odds if the second team wins 
 
         //if the reverse of the odds is less than 1 , then it is profit
         $reverseOdds = 1/floatval($maxBet1) + 1/floatval($maxBetx) + 1/floatval($maxBet2);
