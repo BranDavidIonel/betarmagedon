@@ -19,14 +19,14 @@ class FootballDataController extends Controller
 {
 
     private array $dataUrlSearch = [
-        'euro2024' => [
-            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/international/euro-2024-gra/toate?ti=16144&cpi=1&ct=m",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/euro-2024-meciuri"
-        ],
+        // 'euro2024' => [
+        //     "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
+        //     "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/international/euro-2024-gra/toate?ti=16144&cpi=1&ct=m",
+        //     "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/euro-2024-meciuri"
+        // ],
         'ro_liga1' => [
             "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga-playoff/toate",
+            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga",
             "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
         ],
         "germania_bundesliga" =>[
@@ -270,7 +270,9 @@ class FootballDataController extends Controller
             }
 
             $driver->quit();
+
             $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
+            //dd($matchesDataFromScripts);
             foreach($matchesDataFromScripts as $matchScript){
                 $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
 
@@ -288,10 +290,14 @@ class FootballDataController extends Controller
                 $dateStartMatch = Carbon::createFromTimestamp($timestamp);
                 $betDetails['startTime'] = $dateStartMatch->addHours(3)->format('d-m-Y H:i');
                 $betDetails['isLive'] = isset($matchScript['liveNow']) ? true : false;
+                $detailsBetFromScript = $matchScript['markets'][0]['selections'];
+                if(empty($detailsBetFromScript)){
+                    continue;//I need details about 1 | x | 2 teams 
+                }
 
-                $detailsBet1 = $matchScript['markets'][0]['selections'][0]['price'];
-                $detailsBetx = $matchScript['markets'][0]['selections'][1]['price'];
-                $detailsBet2 = $matchScript['markets'][0]['selections'][2]['price'];
+                $detailsBet1 = $detailsBetFromScript[0]['price'];
+                $detailsBetx = $detailsBetFromScript[1]['price'];
+                $detailsBet2 = $detailsBetFromScript[2]['price'];
 
                 $betDetails['1'] = $detailsBet1;
                 $betDetails['x'] = $detailsBetx;
