@@ -26,13 +26,16 @@ services:
             - mysql
             - selenium
     selenium:
-        image: selenium/standalone-firefox:latest
+        image: selenium/standalone-firefox-debug:latest #use version debug for VNC
         volumes:
         - '/dev/shm:/dev/shm'
         ports:
         - '4444:4444'
+        - '5900:5900'  #VNC port
         networks:
-        - sail   
+        - sail
+        environment:
+          VNC_NO_PASSWORD: 1  #I don't know password   
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:

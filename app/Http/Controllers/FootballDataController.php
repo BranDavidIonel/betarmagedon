@@ -62,7 +62,15 @@ class FootballDataController extends Controller
     {
 
         $firefoxOptions = new FirefoxOptions();
-        $firefoxOptions->addArguments(['--headless']); 
+        $argumentsBrowser = [
+            '--disable-gpu', // Evită problemele cu GPU
+            '--no-sandbox',  // Necesitat pentru medii de container
+            '--disable-dev-shm-usage', // Evită problemele cu memoria partajată
+            '--window-size=1920x1080', // Setează dimensiunea fereastrei pentru vizualizare mai bună
+            '--remote-debugging-port=5900' // Deschide un port pentru debugging remote
+        ];
+        //$argumentsBrowser = ['--headless'];
+        $firefoxOptions->addArguments($argumentsBrowser); 
         
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
@@ -411,6 +419,8 @@ class FootballDataController extends Controller
                     return $driver->executeScript('return document.readyState') === 'complete';
                 }
             );
+            // Call the function to handle cookie consent
+            $this->acceptCookiesCasaPariurilor($driver);
             //get top of the page
             $driver->executeScript('window.scrollTo(0, 0);');
 
@@ -485,6 +495,25 @@ class FootballDataController extends Controller
             }
         }
 
+    }
+        /**
+     * Check if the cookie consent button is present and click it if found.
+     *
+     * @param RemoteWebDriver $driver The WebDriver instance.
+     */
+    private function acceptCookiesCasaPariurilor(RemoteWebDriver $driver) {
+        try {
+            sleep(1);//for debug I saw in Reimmina the click ;)
+            // Try to find the cookie consent button
+            $acceptButton = $driver->findElement(WebDriverBy::id('cookie-consent-button-accept-necessary'));
+            if ($acceptButton) {
+                $acceptButton->click();
+                sleep(1);
+            }
+        } catch (\Exception $e) {
+            //echo "A apărut o eroare nu gaseste cookie-consent-button-accept-necessary: " . $e->getMessage();
+            Log::error("A apărut o eroare nu gaseste cookie-consent-button-accept-necessary: " . $e->getMessage());
+        }
     }
     //endregion
     

@@ -25,7 +25,14 @@ class LinksSitesController extends Controller
         $searchSiteUrl = self::SITE_SEARCH_LINKS;
         $firefoxOptions = new FirefoxOptions();
         $waitTimeout = 10;
-        $argumentsBrowser = ['--headless'];
+        $argumentsBrowser = [
+            '--disable-gpu', // Evită problemele cu GPU
+            '--no-sandbox',  // Necesitat pentru medii de container
+            '--disable-dev-shm-usage', // Evită problemele cu memoria partajată
+            '--window-size=1920x1080', // Setează dimensiunea fereastrei pentru vizualizare mai bună
+            '--remote-debugging-port=5900' // Deschide un port pentru debugging remote
+        ];
+        //$argumentsBrowser = ['--headless'];
         $firefoxOptions->addArguments($argumentsBrowser); 
         
         $capabilities = DesiredCapabilities::firefox();
@@ -34,8 +41,10 @@ class LinksSitesController extends Controller
         $linksLeague = [];
         try {
             $driver->get($searchSiteUrl);
+            sleep(2);
             //wait until the page is ready
             $this->waitForPageReady($driver);
+            
             // $driver->wait($waitTimeout)->until(
             //     WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('GTM-sidebar_FOOT'))
             // );
@@ -47,6 +56,7 @@ class LinksSitesController extends Controller
             // Navigăm direct către URL-ul obținut
             $linkFootbal = $buttonFootbal->getAttribute('href');
             $linkFootbal =  $searchSiteUrl .$linkFootbal;
+            sleep(5);
             //$driver->navigate($linkFootbal)->refresh();
             $driver->quit();
             $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);  
