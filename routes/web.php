@@ -8,4 +8,4 @@ use App\Http\Controllers\LinksSitesController;
 // });
 
 Route::get('/get-links', [LinksSitesController::class, 'getLinks']);
-Route::get('/', [FootballDataController::class, 'fetchData']);
+//Route::get('/', [FootballDataController::class, 'fetchData']);

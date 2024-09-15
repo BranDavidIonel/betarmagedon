@@ -14,15 +14,20 @@ use Laravel\Dusk\Browser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 //my class
+use App\Models\SitesSearch;
 use App\Services\DateConversionService;
 use App\Helpers\StringHelper;
 
 class LinksSitesController extends Controller
 {
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adress Selenium Server
-    private const SITE_SEARCH_LINKS = "https://ro.betano.com/sport/fotbal/";
+    //private const SITE_SEARCH_LINKS = "https://ro.betano.com/sport/fotbal/";
     public function getLinks(){
-        $searchSiteUrl = self::SITE_SEARCH_LINKS;
+        $detailsSite = SitesSearch::where('name', 'betano')->first();
+        if(empty($detailsSite)){
+            return false;
+        }
+        $searchSiteUrl = $detailsSite->link_home_page;
         $firefoxOptions = new FirefoxOptions();
         $waitTimeout = 10;
         $argumentsBrowser = [
