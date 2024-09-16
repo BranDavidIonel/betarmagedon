@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 //my class
 use App\Models\SitesSearch;
+use App\Models\LinksSearchPage;
 use App\Services\DateConversionService;
 use App\Helpers\StringHelper;
 
@@ -28,6 +29,7 @@ class LinksSitesController extends Controller
             return false;
         }
         $searchSiteUrl = $detailsSite->link_home_page;
+        $idSite = $detailsSite->id;
         $firefoxOptions = new FirefoxOptions();
         $waitTimeout = 10;
         $argumentsBrowser = [
@@ -46,7 +48,7 @@ class LinksSitesController extends Controller
         $linksLeague = [];
         try {
             $driver->get($searchSiteUrl);
-            sleep(2);
+            sleep(1);
             //wait until the page is ready
             $this->waitForPageReady($driver);
             
@@ -61,7 +63,7 @@ class LinksSitesController extends Controller
             // Navigăm direct către URL-ul obținut
             $linkFootbal = $buttonFootbal->getAttribute('href');
             $linkFootbal =  $searchSiteUrl .$linkFootbal;
-            sleep(5);
+            sleep(1);
             //$driver->navigate($linkFootbal)->refresh();
             $driver->quit();
             $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);  
@@ -72,14 +74,6 @@ class LinksSitesController extends Controller
                     return $driver->executeScript('return document.readyState') === 'complete';
                 }
             );
-            //close button cookies
-            // $closeButton = $driver->findElement(WebDriverBy::xpath("//div[contains(@class,'sticky-notification__actions-container')]//button[contains(text(), 'ÎNCHIDE')]"));
-            // try {
-            //     $closeButton->click();
-            //     echo "Clicked on the 'ÎNCHIDE' button\n";
-            // } catch (Exception $e) {
-            //     echo "Failed to click on the 'ÎNCHIDE' button: " . $e->getMessage() . "\n";
-            // }
             //get a error about pop up modal)
             $this->closeSomePromotionPopUp($driver);
             //$svgElements = $driver->findElements(WebDriverBy::xpath("//div[@class='tw-flex tw-items-center tw-cursor-pointer']/svg"));//svg don't work
@@ -96,10 +90,7 @@ class LinksSitesController extends Controller
                     // $scrollDistance = $scrollHeight / 15; // Scrolează pe a 15 parte (putin) din înălțimea paginii
                     // $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                     $svgElement->click();
-                    echo "Clicked on SVG element $index\n";
-                    // $driver->wait($waitTimeout)->until(
-                    //     WebDriverExpectedCondition::visibilityOfElementLocated(WebDriverBy::xpath('//svg'))
-                    // );
+                    //echo "Clicked on SVG element $index\n";
                 } catch (Exception $e) {
                     echo "Failed to click on SVG element $index: " . $e->getMessage() . "\n";
                 }
@@ -111,10 +102,20 @@ class LinksSitesController extends Controller
             $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class,'content')]/div/div[@class='tw-flex tw-items-center tw-h-l']/a"));
             foreach($linksLeagueElements as $linkElement){
                 $linkleagueUrl = $linkElement->getAttribute('href');
-                $allFootBallLinks[] = $linkleagueUrl;
+                // Split the URL by "/"
+                $parts = explode('/', $linkleagueUrl);
+                // Get the 4th part which is the league name (index 3)
+                $leagueName = $parts[4]; // Note: arrays in PHP are 0-indexed
+                $leagueName = ucwords(str_replace('-', ' ', $leagueName));
+                $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $searchSiteUrl.$linkleagueUrl];
             }
 
             $driver->quit();
+            foreach($allFootBallLinks as $dataLink){
+                $leagueName = $dataLink['leagueName'];
+                $link = $dataLink['link'];
+                $this->insertLinkIfNotExists($idSite,'football',$link, $leagueName) ;
+            }
             dd($allFootBallLinks);
 
         }catch (\Exception $e) { 
@@ -139,12 +140,30 @@ class LinksSitesController extends Controller
         try {
             $modalCloseButton = $driver->findElement(WebDriverBy::cssSelector('.sb-modal__close__btn.uk-modal-close-default.uk-icon.uk-close'));
             $modalCloseButton->click();
-
-            // Așteptăm ca modalul să se închidă (poți ajusta cu așteptări dinamice dacă modalul se închide asincron)
             sleep(1);
         } catch (Exception $e) {
             echo "Nu s-a găsit butonul de închidere al modalului: " . $e->getMessage();
         }
+    }
+    //I need tot put this function in services
+    private function insertLinkIfNotExists($idSite, $typeGame, $linkLeague, $competitionName)
+    {
+        // Check if a record with the same values already exists
+        $existingLink = LinksSearchPage::where('link_league', $linkLeague)->first();
+    
+        // If it doesn't exist, insert the data
+        if (!$existingLink) {
+            return LinksSearchPage::create([
+                'id_site' => $idSite,
+                'type_game' => $typeGame,
+                'link_league' => $linkLeague,
+                'with_data' => false,
+                'competion_name' => $competitionName,
+            ]);
+        }
+    
+        // If it exists, return a message or the existing record
+        return "Link already exists!";
     }
 
 }

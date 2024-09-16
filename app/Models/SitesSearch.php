@@ -13,6 +13,7 @@ class SitesSearch extends Model
 
     // Atributele care pot fi completate prin atribuire în masă
     protected $fillable = [
+        'id',
         'name',
         'link_home_page'
     ];

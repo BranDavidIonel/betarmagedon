@@ -14,6 +14,8 @@ class LinksSearchPage extends Model
 
     // Atributele care pot fi completate prin atribuire în masă
     protected $fillable = [
+        'id',
+        'id_site',
         'type_game',
         'link_league',
         'with_data',

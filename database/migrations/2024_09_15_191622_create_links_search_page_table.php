@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('link_league')->nullable();
             $table->boolean('with_data')->default(false);
             $table->string('competion_name')->nullable();
+            $table->unsignedBigInteger('id_site')->nullable();  // Add the foreign key column
+
+            // Define the foreign key constraint
+            $table->foreign('id_site')->references('id')->on('sites_search')
+                ->onDelete('set null');  // Cascade delete to null
+
             $table->timestamps();
         });
     }
@@ -26,6 +32,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop foreign key first before dropping the table
+        Schema::table('links_search_page', function (Blueprint $table) {
+            $table->dropForeign(['id_site']);
+        });
+
         Schema::dropIfExists('links_search_page');
     }
 };
