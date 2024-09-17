@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Log;
 //my class
 use App\Models\SitesSearch;
 use App\Models\LinksSearchPage;
+use App\Models\Competition;
+
 use App\Services\DateConversionService;
 use App\Helpers\StringHelper;
 
@@ -26,6 +28,7 @@ class LinksSitesController extends Controller
     public function getLinks(){
         $detailsSite = SitesSearch::where('name', 'betano')->first();
         if(empty($detailsSite)){
+            echo "No data in SitesSearch table!";
             return false;
         }
         $searchSiteUrl = $detailsSite->link_home_page;
@@ -148,9 +151,9 @@ class LinksSitesController extends Controller
     //I need tot put this function in services
     private function insertLinkIfNotExists($idSite, $typeGame, $linkLeague, $competitionName)
     {
+        $competition = $this->findOrCreateCompetition($competitionName);
         // Check if a record with the same values already exists
         $existingLink = LinksSearchPage::where('link_league', $linkLeague)->first();
-    
         // If it doesn't exist, insert the data
         if (!$existingLink) {
             return LinksSearchPage::create([
@@ -158,12 +161,28 @@ class LinksSitesController extends Controller
                 'type_game' => $typeGame,
                 'link_league' => $linkLeague,
                 'with_data' => false,
-                'competion_name' => $competitionName,
+                'competition_id' => $competition->id,
             ]);
         }
     
         // If it exists, return a message or the existing record
         return "Link already exists!";
+    }
+    private function findOrCreateCompetition($competitionName)
+    {
+        // Search for the competition by name in the competitions table
+        $competition = Competition::where('name', $competitionName)->first();
+
+        // If the competition does not exist, create and insert it
+        if (!$competition) {
+            $competition = Competition::create([
+                'name' => $competitionName,
+                'alias' => json_encode([$competitionName]) //trebuie sa schimb ca prea simplu ii lasat aici 
+            ]);
+        }
+
+        // Return the competition instance (whether found or created)
+        return $competition;
     }
 
 }

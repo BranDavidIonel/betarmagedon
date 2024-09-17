@@ -19,6 +19,6 @@ class LinksSearchPage extends Model
         'type_game',
         'link_league',
         'with_data',
-        'competion_name'
+        'competition_id'
     ];
 }
