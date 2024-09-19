@@ -24,30 +24,83 @@ use App\Helpers\StringHelper;
 class LinksSitesController extends Controller
 {
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adress Selenium Server
-    //private const SITE_SEARCH_LINKS = "https://ro.betano.com/sport/fotbal/";
-    public function getLinks(){
-        $detailsSite = SitesSearch::where('name', 'betano')->first();
+    
+
+    public function getLinksForSuberbet(){
+        //sds-icon sds-icon--md sds-icon-sports-soccer
+        $detailsSite = SitesSearch::where('name', 'superbet')->first();
         if(empty($detailsSite)){
-            echo "No data in SitesSearch table!";
+            echo "No data in SitesSearch table about betano!";
             return false;
         }
         $searchSiteUrl = $detailsSite->link_home_page;
         $idSite = $detailsSite->id;
-        $firefoxOptions = new FirefoxOptions();
         $waitTimeout = 10;
-        $argumentsBrowser = [
-            '--disable-gpu', // Evită problemele cu GPU
-            '--no-sandbox',  // Necesitat pentru medii de container
-            '--disable-dev-shm-usage', // Evită problemele cu memoria partajată
-            '--window-size=1920x1080', // Setează dimensiunea fereastrei pentru vizualizare mai bună
-            '--remote-debugging-port=5900' // Deschide un port pentru debugging remote
-        ];
-        //$argumentsBrowser = ['--headless'];
-        $firefoxOptions->addArguments($argumentsBrowser); 
+        $driver = $this->initializeWebDriver();
+        $linksLeague = [];
+        try {
+            $driver->get($searchSiteUrl);
+            $this->waitForPageReady($driver);
+            sleep(2);
+            // Try to click the button identified by the text "Accepta" cookies accept
+            try {
+                $acceptButton = $driver->findElement(WebDriverBy::xpath("//button[text()='Accepta']"));
+                $acceptButton->click(); // Click the "Accepta" button
+            } catch (\Exception $e) {
+                // If the button doesn't exist, simply log or handle the situation
+                echo "The 'Accepta' button was not found. Proceeding without clicking it.";
+            }
+            sleep(3);
+            $logoLink = $driver->findElement(WebDriverBy::cssSelector('.header-logo a'));
+            $logoLink->click(); // Click the link
+            //$driver->quit();
+            sleep(2);
+            $driver = $this->initializeWebDriver();  
+            $driver->get($searchSiteUrl);
+            $this->waitForPageReady($driver);
+            sleep(2);
+            
+            // $fotbalButton = $driver->findElement(WebDriverBy::xpath("//button[contains(., 'Fotbal')]"));
+            // $fotbalButton->click();
+            
+            $driver->quit();
+            dd('ok');
+        }catch (\Exception $e) {
+            $driver->quit();   
+            dd($e);
         
-        $capabilities = DesiredCapabilities::firefox();
-        $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
-        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+        }finally {
+            if (isset($driver)) {
+                $driver->quit();
+            }
+        }  
+
+    }
+
+    public function getLinksForBetano(){
+        $detailsSite = SitesSearch::where('name', 'betano')->first();
+        if(empty($detailsSite)){
+            echo "No data in SitesSearch table about betano!";
+            return false;
+        }
+        $searchSiteUrl = $detailsSite->link_home_page;
+        $idSite = $detailsSite->id;
+        $waitTimeout = 10;
+        // $firefoxOptions = new FirefoxOptions();
+        // $argumentsBrowser = [
+        //     '--disable-gpu', // Evită problemele cu GPU
+        //     '--no-sandbox',  // Necesitat pentru medii de container
+        //     '--disable-dev-shm-usage', // Evită problemele cu memoria partajată
+        //     '--window-size=1920x1080', // Setează dimensiunea fereastrei pentru vizualizare mai bună
+        //     '--remote-debugging-port=5900' // Deschide un port pentru debugging remote
+        // ];
+        // //$argumentsBrowser = ['--headless'];
+        // $firefoxOptions->addArguments($argumentsBrowser); 
+        
+        // $capabilities = DesiredCapabilities::firefox();
+        // $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
+        $driver = $this->initializeWebDriver();
+        
         $linksLeague = [];
         try {
             $driver->get($searchSiteUrl);
@@ -59,7 +112,7 @@ class LinksSitesController extends Controller
             //     WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('GTM-sidebar_FOOT'))
             // );
             // Identificăm și închidem modalul dacă apare ( get a error about pop up modal)
-            $this->closeSomePromotionPopUp($driver);
+            $this->closeSomePromotionPopUpBetano($driver);
              
             $buttonFootbal = $driver->findElement(WebDriverBy::xpath("//div[contains(@class, 'sport-picker__item__inline')]/a"));
             //$buttonFootbal->click();
@@ -78,7 +131,7 @@ class LinksSitesController extends Controller
                 }
             );
             //get a error about pop up modal)
-            $this->closeSomePromotionPopUp($driver);
+            $this->closeSomePromotionPopUpBetano($driver);
             //$svgElements = $driver->findElements(WebDriverBy::xpath("//div[@class='tw-flex tw-items-center tw-cursor-pointer']/svg"));//svg don't work
             ////section[2]/div[4]/div[2]/section/div/div/div/div/div[2]/div[2]/div/div[2]/div[5]/div/div[@class='tw-flex tw-items-center tw-cursor-pointer']
             $svgElements = $driver->findElements(WebDriverBy::xpath("//div[2]/div/div[2]/div/div/div[@class='tw-flex tw-items-center tw-cursor-pointer']"));
@@ -93,7 +146,6 @@ class LinksSitesController extends Controller
                     // $scrollDistance = $scrollHeight / 15; // Scrolează pe a 15 parte (putin) din înălțimea paginii
                     // $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                     $svgElement->click();
-                    //echo "Clicked on SVG element $index\n";
                 } catch (Exception $e) {
                     echo "Failed to click on SVG element $index: " . $e->getMessage() . "\n";
                 }
@@ -129,8 +181,33 @@ class LinksSitesController extends Controller
                 $driver->quit();
             }
         }    
-        dd("end");
 
+    }
+    private function initializeWebDriver() 
+    {
+        // Create a new FirefoxOptions instance
+        $firefoxOptions = new FirefoxOptions();
+    
+        // Define the browser arguments
+        $argumentsBrowser = [
+            '--disable-gpu', // Avoid GPU issues
+            '--no-sandbox',  // Required for containerized environments
+            '--disable-dev-shm-usage', // Avoid shared memory issues
+            '--window-size=1920x1080', // Set window size for better visualization
+            '--remote-debugging-port=5900' // Open a port for remote debugging
+        ];
+    
+        // Add the arguments to Firefox options
+        $firefoxOptions->addArguments($argumentsBrowser);
+    
+        // Create a new instance of DesiredCapabilities for Firefox
+        $capabilities = DesiredCapabilities::firefox();
+        
+        // Set the Firefox options to the capabilities
+        $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
+    
+        // Initialize and return the RemoteWebDriver instance
+        return RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
     }
     private function waitForPageReady($driver, $waitTimeout = 5){
         $driver->wait($waitTimeout)->until(
@@ -139,7 +216,7 @@ class LinksSitesController extends Controller
             }
         );
     }
-    private function closeSomePromotionPopUp($driver){
+    private function closeSomePromotionPopUpBetano($driver){
         try {
             $modalCloseButton = $driver->findElement(WebDriverBy::cssSelector('.sb-modal__close__btn.uk-modal-close-default.uk-icon.uk-close'));
             $modalCloseButton->click();

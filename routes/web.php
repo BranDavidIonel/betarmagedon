@@ -7,5 +7,6 @@ use App\Http\Controllers\LinksSitesController;
 //     return view('welcome');
 // });
 
-Route::get('/get-links', [LinksSitesController::class, 'getLinks']);
-Route::get('/', [FootballDataController::class, 'fetchData']);
+Route::get('/get-links/betano', [LinksSitesController::class, 'getLinksForBetano']);
+Route::get('/get-links/suberbet', [LinksSitesController::class, 'getLinksForSuberbet']);
+//Route::get('/', [FootballDataController::class, 'fetchData']);
