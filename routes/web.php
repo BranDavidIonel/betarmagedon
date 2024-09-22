@@ -9,4 +9,4 @@ use App\Http\Controllers\LinksSitesController;
 
 Route::get('/get-links/betano', [LinksSitesController::class, 'getLinksForBetano']);
 Route::get('/get-links/superbet', [LinksSitesController::class, 'getLinksForSuperbet']);
-//Route::get('/', [FootballDataController::class, 'fetchData']);
+Route::get('/', [FootballDataController::class, 'fetchData']);

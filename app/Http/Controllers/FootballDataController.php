@@ -13,11 +13,16 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 //my class
 use App\Services\DateConversionService;
-//use App\Helpers\StringHelper;
+use App\Services\ConfigWebDriverService;
+
 
 class FootballDataController extends Controller
 {
-
+    private ConfigWebDriverService $configWebDriverService;
+    public function __construct(ConfigWebDriverService $configWebDriverService)
+    {
+        $this->configWebDriverService = $configWebDriverService;
+    }
     private array $dataUrlSearch = [
         // 'euro2024' => [
         //     "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
@@ -88,14 +93,14 @@ class FootballDataController extends Controller
                 $urlSuperbet = $urlData['suberbet_url'];
                 $urlCasapariurilor = $urlData['casapariurilor_url'];
 
-                $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano ,$capabilities);
+                $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano);
                 //betano is the main site where I searched matches ( if don't exist don't search to others sites)
                 if(empty($betanoMatches)){
                     Log::info("No matches were found for betano in the league ($keyLigName)");
                     continue;
                 }
-                $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($urlSuperbet ,$capabilities);
-                $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($urlCasapariurilor ,$capabilities);
+                $superbetMatches = $this->scrapeSuperbetWithClassNameMethod($urlSuperbet);
+                $casapariurilorMatches = $this->scrapeCasaPariurilorWithClassNameMethod($urlCasapariurilor);
 
                 $returnAllMathcesData[$keyLigName] = [
                     'betano_matches' => $betanoMatches,
@@ -253,13 +258,11 @@ class FootballDataController extends Controller
     //endregion
 
     //region betano
-    private function scrapeBetanoWithScriptMethod($urlSearchMatches, $capabilities)
+    private function scrapeBetanoWithScriptMethod($urlSearchMatches)
     {
         $dataReturn = [];
-
         // Creare un nou driver WebDriver pentru Selenium
-        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
-
+        $driver = $this->configWebDriverService->initializeWebDriver();
         try {
             // Accesează pagina Betano
             $driver->get($urlSearchMatches);
@@ -314,37 +317,29 @@ class FootballDataController extends Controller
                 $dataReturn[$key] = $betDetails;
             }
 
-        } finally {
+        }catch (\Exception $e) {
+            Log::error('eroare scrapeBetanoWithScriptMethod',$e->getTrace());
+            echo "A apărut o eroare scrapeBetanoWithScriptMethod: " . $e->getMessage(). "linia: ".$e->getLine();
+            $driver->quit();
+            exit;
+        }finally {
             $driver->quit();
         }
-
         return $dataReturn;
     }
     //endregion
 
     //region superbet
-    private function scrapeSuperbetWithClassNameMethod($urlSearchMatches ,$capabilities,$waitTimeout = 5, $waitPresenceTimeout = 5){
-        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+    private function scrapeSuperbetWithClassNameMethod($urlSearchMatches){
+        $driver = $this->configWebDriverService->initializeWebDriver();
         $superbetMatches = [];
         try {
             $driver->get($urlSearchMatches);
-            try{
-            //wait until the page is ready
-                $driver->wait($waitTimeout)->until(
-                    function ($driver) {
-                        return $driver->executeScript('return document.readyState') === 'complete';
-                    }
-                );
-
-
-                $driver->wait($waitPresenceTimeout)->until(
+            $this->configWebDriverService->waitForPageReady($driver);
+            //don't work without this ( check is page ready like above)
+            $driver->wait(5)->until(
                     WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
-                );
-            } catch (\Exception $e) {
-                //Facebook\WebDriver\Exception\TimeoutException $e
-                // Return default data if TimeoutException is encountered
-                return $superbetMatches;
-            }
+            );
             //events-by-date , is card with multiples matches group on date
             $cardDatesElements = $driver->findElements(WebDriverBy::className('events-by-date'));
             foreach($cardDatesElements as $cardElement){
@@ -358,6 +353,9 @@ class FootballDataController extends Controller
                         //capitalize -> hour and minutes get string
                         $hourMinutesElement = $match->findElement(WebDriverBy::className('capitalize'));
                     }catch(\Exception $e){
+                        //for live matches i have this error
+//                        Log::error("eroare superbet");
+//                        Log::error($e->getMessage());
                         continue; //next match
                     }
                     $teamName1Element = $teamsElements[0];
@@ -392,39 +390,32 @@ class FootballDataController extends Controller
                     }
                     $superbetMatches[$key] = $betDetails;
                 }
-
             }
-
             return $superbetMatches;
+        }catch (\Exception $e) {
+            Log::error('eroare scrapeSuperbetWithClassNameMethod',$e->getTrace());
+            echo "A apărut o eroare scrapeSuperbetWithClassNameMethod:" . $e->getMessage(). "linia: ".$e->getLine();
+            $driver->quit();
+            exit;
         } finally {
-            if (isset($driver)) {
-                $driver->quit();
-            }
+            $driver->quit();
         }
-
     }
     //endregion
 
     //region casa_pariurilor
     //I am used scrol to get all matches
-    private function scrapeCasaPariurilorWithClassNameMethod($urlSearchMatches, $capabilities,$waitTimeout = 10, $waitPresenceTimeout = 5){
-        $driver = RemoteWebDriver::create(self::SERVER_SELENIUM_URL, $capabilities);
+    private function scrapeCasaPariurilorWithClassNameMethod($urlSearchMatches){
+        $driver = $this->configWebDriverService->initializeWebDriver();
         $casaPariurilorMatches = [];
-
         try {
             $driver->get($urlSearchMatches);
-            $driver->wait($waitTimeout)->until(
-                function ($driver) {
-                    return $driver->executeScript('return document.readyState') === 'complete';
-                }
-            );
+            $this->configWebDriverService->waitForPageReady($driver);
             // Call the function to handle cookie consent
             $this->acceptCookiesCasaPariurilor($driver);
             //get top of the page
             $driver->executeScript('window.scrollTo(0, 0);');
-
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
-
 
             foreach ($matches as $match) {
                 $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
@@ -485,15 +476,13 @@ class FootballDataController extends Controller
 
             return $casaPariurilorMatches;
         }catch (\Exception $e) {
-            echo "A apărut o eroare: " . $e->getMessage();
+            Log::error('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
+            echo "A apărut o eroare superbet functia cautare scrapeCasaPariurilorWithClassNameMethod:" . $e->getMessage().' linia:'.$e->getLine();
             $driver->quit();
             exit;
         }finally {
-            if (isset($driver)) {
-                $driver->quit();
-            }
+            $driver->quit();
         }
-
     }
         /**
      * Check if the cookie consent button is present and click it if found.
