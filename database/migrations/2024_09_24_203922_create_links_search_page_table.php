@@ -13,17 +13,19 @@ return new class extends Migration
     {
         Schema::create('links_search_page', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('competition_id')->nullable();  
-            $table->unsignedBigInteger('id_site')->nullable(); 
+            $table->unsignedBigInteger('competition_id')->nullable();
+            $table->unsignedBigInteger('site_id')->nullable();
             $table->string('type_game')->nullable();
             $table->string('link_league')->nullable();
             $table->boolean('with_data')->default(false);
+            $table->boolean('scraped')->default(false)
+                ->comment("If we have already searched in the page then scraped = true");
 
             // Define the foreign key constraint
             $table->foreign('competition_id')->references('id')->on('competitions')
                 ->onDelete('set null');  // Cascade delete to null if competition is deleted
 
-            $table->foreign('id_site')->references('id')->on('sites_search')
+            $table->foreign('site_id')->references('id')->on('sites_search')
                 ->onDelete('set null');  // Cascade delete to null
 
             $table->timestamps();
@@ -38,7 +40,7 @@ return new class extends Migration
         // Drop foreign key first before dropping the table
         Schema::table('links_search_page', function (Blueprint $table) {
             $table->dropForeign(['competition_id']);
-            $table->dropForeign(['id_site']);
+            $table->dropForeign(['site_id']);
         });
 
         Schema::dropIfExists('links_search_page');

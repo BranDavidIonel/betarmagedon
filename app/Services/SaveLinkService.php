@@ -3,6 +3,7 @@
 
 namespace App\Services;
 
+use App\Models\Country;
 use Carbon\Carbon;
 use App\Models\SitesSearch;
 use App\Models\LinksSearchPage;
@@ -13,14 +14,14 @@ class SaveLinkService
     {
     }
 
-    public function insertLinkIfNotExists($idSite, $typeGame, $linkLeague, $competitionName, $countryName)
+    public function insertLinkIfNotExists($siteId, $typeGame, $linkLeague, $competitionName, $countryName)
     {
         $competition = $this->findOrCreateCompetition($competitionName, $countryName);
         $existingLink = LinksSearchPage::where('link_league', $linkLeague)->first();
 
         if (!$existingLink) {
             return LinksSearchPage::create([
-                'id_site' => $idSite,
+                'site_id' => $siteId,
                 'type_game' => $typeGame,
                 'link_league' => $linkLeague,
                 'with_data' => false,
@@ -33,14 +34,20 @@ class SaveLinkService
 
     private function findOrCreateCompetition($competitionName, $countryName)
     {
+        $countryId = null;
+        $findCountry = Country::where('name', $countryName)->first();
+        if($findCountry){
+            $countryId = $findCountry->id;
+        }
+
         $competition = Competition::where('name', 'like','%'.$competitionName.'%')
-                        ->where('country_name', $countryName)
+                        ->where('country_id', $countryId)
                         ->first();
 
         if (!$competition) {
             $competition = Competition::create([
                 'name' => $competitionName,
-                'country_name' => $countryName,
+                'country_id' => $countryId,
                 'alias' => json_encode([$competitionName])
             ]);
         }

@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SitesSearch extends Model
+class Country extends Model
 {
     use HasFactory;
-
-    protected $table = 'sites_search';
+    protected $table = 'countries';
 
     protected $fillable = [
         'id',
-        'name',
-        'link_home_page'
+        'name'
     ];
 }

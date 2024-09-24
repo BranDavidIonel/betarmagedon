@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AccepCookiesButtonService;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
@@ -18,6 +19,7 @@ use App\Services\ConfigWebDriverService;
 
 class FootballDataController extends Controller
 {
+    //region main data
     private ConfigWebDriverService $configWebDriverService;
     public function __construct(ConfigWebDriverService $configWebDriverService)
     {
@@ -144,6 +146,8 @@ class FootballDataController extends Controller
             dd($e);
         }
     }
+    //endregion
+
     //region search is profit match
     private function hasProfitData($profitData){
         if (isset($profitData) && is_array($profitData) && count($profitData) > 0) {
@@ -412,7 +416,7 @@ class FootballDataController extends Controller
             $driver->get($urlSearchMatches);
             $this->configWebDriverService->waitForPageReady($driver);
             // Call the function to handle cookie consent
-            $this->acceptCookiesCasaPariurilor($driver);
+            AccepCookiesButtonService::acceptCookiesCasaPariurilor($driver);
             //get top of the page
             $driver->executeScript('window.scrollTo(0, 0);');
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
@@ -484,25 +488,7 @@ class FootballDataController extends Controller
             $driver->quit();
         }
     }
-        /**
-     * Check if the cookie consent button is present and click it if found.
-     *
-     * @param RemoteWebDriver $driver The WebDriver instance.
-     */
-    private function acceptCookiesCasaPariurilor(RemoteWebDriver $driver) {
-        try {
-            sleep(1);//for debug I saw in Reimmina the click ;)
-            // Try to find the cookie consent button
-            $acceptButton = $driver->findElement(WebDriverBy::id('cookie-consent-button-accept-necessary'));
-            if ($acceptButton) {
-                $acceptButton->click();
-                sleep(1);
-            }
-        } catch (\Exception $e) {
-            //echo "A apărut o eroare nu gaseste cookie-consent-button-accept-necessary: " . $e->getMessage();
-            Log::error("A apărut o eroare nu gaseste cookie-consent-button-accept-necessary: " . $e->getMessage());
-        }
-    }
+
     //endregion
 
 }
