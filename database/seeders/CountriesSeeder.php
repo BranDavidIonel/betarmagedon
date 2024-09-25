@@ -9,12 +9,13 @@ use App\Models\Country;
 class CountriesSeeder extends Seeder
 {
     // Lista de tari in limba romana fara diacritice
-    private array $countries = [
+    private array $countriesAndRegion = [
         'afganistan',
         'albania',
         'algeria',
         'andorra',
         'angola',
+        'anglia',
         'antigua si barbuda',
         'arabia saudita',
         'argentina',
@@ -200,7 +201,7 @@ class CountriesSeeder extends Seeder
     public function run(): void
     {
         if (Country::count() == 0) {
-            foreach ($this->countries as $country) {
+            foreach ($this->countriesAndRegion as $country) {
                 Country::create([
                     'name' => $country,
                 ]);

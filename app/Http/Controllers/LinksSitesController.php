@@ -175,7 +175,7 @@ class LinksSitesController extends Controller
             sleep(1);
             $uniqueLinks = [];
             // Perform 10 slow scrolls with a slight pause
-            for ($i = 0; $i < 140; $i++) {
+            for ($i = 0; $i < 160; $i++) {
                 // Execute JavaScript to scroll down by 800 pixels each time
                 $driver->executeScript('window.scrollBy(0, 800);');
                 // Sleep for 0.5 seconds between each scroll to make it smooth
@@ -258,9 +258,12 @@ class LinksSitesController extends Controller
                     $countryName = null;
                 }else{
                     $countryName = $countryWithLeagueNameArray[0];
-                    $leagueName = $countryWithLeagueNameArray[1];
                     if(!$this->checkDataService->checkCountryExist($countryName)){
                         $countryName = null;
+                        $leagueName = str_replace( '-', ' ', $countryWithLeagueName);;
+                    }else{
+                        $countryWithLeagueName = str_replace( '-', ' ', $countryWithLeagueName);
+                        $leagueName = str_replace($countryName, '', $countryWithLeagueName);//remove country and remains only league name
                     }
                 }
                 //nu ii bun inca ce am pe aici
@@ -274,7 +277,7 @@ class LinksSitesController extends Controller
                 $leagueName = $dataLink['leagueName'];
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
-                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {

@@ -25,6 +25,10 @@ class FootballDataController extends Controller
     {
         $this->configWebDriverService = $configWebDriverService;
     }
+    //o sa fac cu asta
+    //SELECT competition_id,GROUP_CONCAT(site_id),GROUP_CONCAT(link_league) as links
+    //FROM `links_search_page`
+    //GROUP BY competition_id HAVING  COUNT(site_id) > 2
     private array $dataUrlSearch = [
         // 'euro2024' => [
         //     "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
