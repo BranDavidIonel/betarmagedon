@@ -112,8 +112,7 @@ class LinksSitesController extends Controller
                 $leagueName = $dataLink['leagueName'];
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
-
-                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {
@@ -131,8 +130,8 @@ class LinksSitesController extends Controller
             $modalCloseButton = $driver->findElement(WebDriverBy::cssSelector('.sb-modal__close__btn.uk-modal-close-default.uk-icon.uk-close'));
             $modalCloseButton->click();
             sleep(1);
-        } catch (Exception $e) {
-            echo "Nu s-a găsit butonul de închidere al modalului: " . $e->getMessage();
+        } catch (\Exception $e) {
+            Log::info("Error in closeSomePromotionPopUpBetano:".$e->getMessage(), $e->getTrace());
         }
     }
     //endregion
@@ -175,11 +174,11 @@ class LinksSitesController extends Controller
             sleep(1);
             $uniqueLinks = [];
             // Perform 10 slow scrolls with a slight pause
-            for ($i = 0; $i < 160; $i++) {
+            for ($i = 0; $i < 195; $i++) {
                 // Execute JavaScript to scroll down by 800 pixels each time
-                $driver->executeScript('window.scrollBy(0, 800);');
+                $driver->executeScript('window.scrollBy(0, 700);');
                 // Sleep for 0.5 seconds between each scroll to make it smooth
-                usleep(300000); // 300,000 microseconds = 0.3 seconds
+                usleep(500000); // 500,000 microseconds = 0.5 seconds
                 // Find all <a> elements inside the div with class 'group-header'
                 $linkElements = $driver->findElements(
                     WebDriverBy::xpath("//div[contains(@class, 'group-header__wrapper')]//a[contains(@class, 'group-header__details')]")

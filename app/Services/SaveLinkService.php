@@ -17,6 +17,10 @@ class SaveLinkService
 
     public function insertLinkIfNotExists($siteId, $typeGame, $linkLeague, $competitionName, $countryName)
     {
+        $linkLeague = trim($linkLeague);
+        $competitionName = trim($competitionName);
+        $countryName = trim($countryName);
+
         $competition = $this->findOrCreateCompetition($competitionName, $countryName);
         $existingLink = LinksSearchPage::where('link_league', $linkLeague)->first();
 
