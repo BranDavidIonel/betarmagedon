@@ -15,5 +15,14 @@ class Competition extends Model
         'country_id',
         'alias'
     ];
+    public function linksSearchPages()
+    {
+        return $this->hasMany(LinksSearchPage::class, 'competition_id');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
 
 }

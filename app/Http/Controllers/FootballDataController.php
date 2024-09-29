@@ -9,63 +9,120 @@ use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
+use Illuminate\Support\Collection;
 use Laravel\Dusk\Browser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 //my class
 use App\Services\DateConversionService;
 use App\Services\ConfigWebDriverService;
-
+use App\Models\LinksSearchPage;
+use Illuminate\Support\Facades\DB;
 
 class FootballDataController extends Controller
 {
     //region main data
     private ConfigWebDriverService $configWebDriverService;
+    //demo data
+//    private array $dataUrlSearch = [
+//        'ro_liga1' => [
+//            "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
+//        ],
+//        "germania_bundesliga" =>[
+//            "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
+//        ],
+//        "anglia_premier_league" =>[
+//            "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
+//        ],
+//        'italia_seria_a' =>[
+//            'betano_url' => "https://ro.betano.com/sport/fotbal/competitii/italia/87/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/italia/italia-serie-a/toate?ti=104",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/italia-serie-a"
+//        ],
+//        'franta_liga1' => [
+//            "betano_url" => "https://ro.betano.com/sport/fotbal/franta/ligue-1/215/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/franta/franta-ligue-1/toate?ti=100",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/franta-ligue-1"
+//        ],
+//        'turcia_liga1' => [
+//            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/turcia/11384/",
+//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/turcia/turcia-super-lig/toate?ti=323",
+//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
+//        ],
+//    ];
+    private array $dataUrlSearch = [];
     public function __construct(ConfigWebDriverService $configWebDriverService)
     {
         $this->configWebDriverService = $configWebDriverService;
+        $this->dataUrlSearch = $this->getDataUrlSearchFromQuery();
+        //dd($this->dataUrlSearch);
     }
-    //o sa fac cu asta
-    //SELECT competition_id,GROUP_CONCAT(site_id),GROUP_CONCAT(link_league) as links
-    //FROM `links_search_page`
-    //GROUP BY competition_id HAVING  COUNT(site_id) > 2
-    private array $dataUrlSearch = [
-        // 'euro2024' => [
-        //     "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/euro/189663/?bt=matchresult",
-        //     "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/international/euro-2024-gra/toate?ti=16144&cpi=1&ct=m",
-        //     "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/euro-2024-meciuri"
-        // ],
-        'ro_liga1' => [
-            "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
-        ],
-        "germania_bundesliga" =>[
-            "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
-        ],
-        "anglia_premier_league" =>[
-            "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
-        ],
-        'italia_seria_a' =>[
-            'betano_url' => "https://ro.betano.com/sport/fotbal/competitii/italia/87/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/italia/italia-serie-a/toate?ti=104",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/italia-serie-a"
-        ],
-        'franta_liga1' => [
-            "betano_url" => "https://ro.betano.com/sport/fotbal/franta/ligue-1/215/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/franta/franta-ligue-1/toate?ti=100",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/franta-ligue-1"
-        ],
-        'turcia_liga1' => [
-            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/turcia/11384/",
-            "suberbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/turcia/turcia-super-lig/toate?ti=323",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
-        ],
-    ];
+    private function getDataUrlSearchFromQuery():array
+    {
+        $results = LinksSearchPage::select(
+            'lsp.competition_id',
+            'com.name AS competition_name',
+            'com.alias AS competition_alias',
+            'countries.name AS country_name',
+            DB::raw('GROUP_CONCAT(lsp.site_id ORDER BY
+                            CASE
+                                WHEN lsp.site_id = 1 THEN 1
+                                WHEN lsp.site_id = 2 THEN 2
+                                WHEN lsp.site_id = 3 THEN 3
+                                ELSE 4 /* un fallback pentru site_id-uri necunoscute */
+                            END ASC
+                        ) AS site_ids'),
+            DB::raw('GROUP_CONCAT(lsp.link_league ORDER BY
+                            CASE
+                                WHEN lsp.site_id = 1 THEN 1
+                                WHEN lsp.site_id = 2 THEN 2
+                                WHEN lsp.site_id = 3 THEN 3
+                                ELSE 4 /* un fallback pentru link-uri necunoscute */
+                            END ASC
+                        ) AS links')
+            )
+            ->from('links_search_page AS lsp')
+            ->join('competitions AS com', 'com.id', '=', 'lsp.competition_id')
+            ->join('countries', 'countries.id', '=', 'com.country_id')
+            ->groupBy('lsp.competition_id', 'com.name', 'com.alias', 'countries.name')
+            ->havingRaw('COUNT(DISTINCT lsp.site_id) > 2')
+            ->get();
+
+        $formattedLinks = [];
+        foreach ($results as $result) {
+            // Get the sites from `links` using explode
+            $linksArray = explode(',', $result->links);
+            $siteIdsArray = explode(',', $result->site_ids);
+            // Initialize an array to store the links for each competition
+            $competitionKey =$result->country_name. " -> ". $result->competition_name;
+            // Check if there is already an entry for the competition
+            if (!isset($formattedLinks[$competitionKey])) {
+                $formattedLinks[$competitionKey] = [];
+            }
+            // Add the links directly, as they are already in the desired order
+            foreach ($siteIdsArray as $index => $siteId) {
+                switch ($siteId) {
+                    case '1':
+                        $formattedLinks[$competitionKey]['betano_url'] = $linksArray[$index];
+                        break;
+                    case '2':
+                        $formattedLinks[$competitionKey]['superbet_url'] = $linksArray[$index];
+                        break;
+                    case '3':
+                        $formattedLinks[$competitionKey]['casapariurilor_url'] = $linksArray[$index];
+                        break;
+                }
+            }
+        }
+
+        return $formattedLinks;
+    }
 
     private const SERVER_SELENIUM_URL = "http://selenium:4444/wd/hub"; // Adress Selenium Server
 
@@ -96,7 +153,7 @@ class FootballDataController extends Controller
                 sleep($randomNumberSleep);
                 Log::info("begin search for: $keyLigName");
                 $urlBetano = $urlData['betano_url'];
-                $urlSuperbet = $urlData['suberbet_url'];
+                $urlSuperbet = $urlData['superbet_url'];
                 $urlCasapariurilor = $urlData['casapariurilor_url'];
 
                 $betanoMatches = $this->scrapeBetanoWithScriptMethod($urlBetano);

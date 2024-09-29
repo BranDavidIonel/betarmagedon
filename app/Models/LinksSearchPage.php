@@ -21,4 +21,8 @@ class LinksSearchPage extends Model
         'with_data',
         'competition_id'
     ];
+    public function competition()
+    {
+        return $this->belongsTo(Competition::class, 'competition_id');
+    }
 }

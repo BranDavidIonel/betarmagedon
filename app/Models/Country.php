@@ -14,4 +14,8 @@ class Country extends Model
         'id',
         'name'
     ];
+    public function competitions()
+    {
+        return $this->hasMany(Competition::class, 'country_id');
+    }
 }

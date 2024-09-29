@@ -15,9 +15,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 //my class
 use App\Models\SitesSearch;
-use App\Models\LinksSearchPage;
-use App\Models\Competition;
-
 use App\Services\DateConversionService;
 use App\Services\SaveLinkService;
 use App\Services\ConfigWebDriverService;
