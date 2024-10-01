@@ -109,6 +109,7 @@ class LinksSitesController extends Controller
                 $leagueName = $dataLink['leagueName'];
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
+                $this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
                 //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
@@ -137,7 +138,7 @@ class LinksSitesController extends Controller
         //sds-icon sds-icon--md sds-icon-sports-soccer
         $detailsSite = SitesSearch::where('name', 'superbet')->first();
         if(empty($detailsSite)){
-            echo "No data in SitesSearch table about betano!";
+            echo "No data in SitesSearch table about superbet!";
             return false;
         }
         $searchSiteUrl = $detailsSite->link_home_page;
@@ -210,7 +211,8 @@ class LinksSitesController extends Controller
                 $leagueName = $dataLink['leagueName'];
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
-                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
+                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {

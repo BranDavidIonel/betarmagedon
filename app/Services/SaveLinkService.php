@@ -9,6 +9,7 @@ use App\Models\SitesSearch;
 use App\Models\LinksSearchPage;
 use App\Models\Competition;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class SaveLinkService
 {
     public function __construct()
@@ -35,6 +36,22 @@ class SaveLinkService
         }
 
         return "Link already exists!";
+    }
+    public function createScrapedCompetition($siteId, $competitionName, $countryName)
+    {
+        $countryId = null;
+        $findCountry = Country::where('name', $countryName)->first();
+        if($findCountry){
+            $countryId = $findCountry->id;
+        }
+        DB::table('scraped_competitions')->insert([
+            'site_id' => $siteId,
+            'name' => $competitionName,
+            'country_id' => $countryId,
+            'country_name' => $countryName,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
     }
 
     private function findOrCreateCompetition($competitionName, $countryName)
