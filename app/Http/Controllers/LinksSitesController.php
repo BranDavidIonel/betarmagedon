@@ -151,7 +151,7 @@ class LinksSitesController extends Controller
             sleep(2);
             // Try to click the button identified by the text "Accepta" cookies accept
             try {
-                $acceptButton = $driver->findElement(WebDriverBy::xpath("//button[text()='Accepta']"));
+                $acceptButton = $driver->findElement(WebDriverBy::xpath("//button[contains(text(), 'Acceptați')]"));
                 $acceptButton->click(); // Click the "Accepta" button
             } catch (\Exception $e) {
                 // If the button doesn't exist, simply log or handle the situation
@@ -275,7 +275,8 @@ class LinksSitesController extends Controller
                 $leagueName = $dataLink['leagueName'];
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
-                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
+                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {

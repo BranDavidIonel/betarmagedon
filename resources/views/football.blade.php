@@ -3,8 +3,13 @@
 <html>
 <head>
     <title>The bet Armagedon</title>
+    <!-- Link to the favicon -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{{ asset('betarmagedon-512x512.png') }}" alt="Bet Armagedon Logo" style="width: 150px; height: auto;">
+    </div>
     @foreach ($returnAllMathcesData as $keyLeagueName => $matchesData)
     <h1>{{$keyLeagueName}}</h1>
         @if(isset($matchesData['betano_matches']))
