@@ -28,7 +28,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'efl cup',
-            'alias' => ['efl cup', 'cupa ligii']
+            'alias' => ['efl cup', 'cupa ligii f','cupa ligii']
         ],
         [
             'id' => 4,
@@ -42,14 +42,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league one',
-            'alias' => ['league one']
+            'alias' => ['league one', '1']
         ],
         [
             'id' => 6,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league two',
-            'alias' => ['league two']
+            'alias' => ['league two', '2']
         ],
         [
             'id' => 7,
@@ -120,8 +120,8 @@ class CompetitionSeeder extends Seeder
             'id' => 13,
             'country_id' => 3,
             'country_name' => 'algeria',
-            'name' => 'ligue 1 u21',
-            'alias' => ['ligue 1 u21']
+            'name' => 'ligue 1',
+            'alias' => ['ligue 1', '1']
         ],
         //endregion
         //region arabia saudita data

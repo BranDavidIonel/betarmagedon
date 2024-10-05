@@ -1,3 +1,45 @@
+/* get scraped competition data gruped by country */
+SELECT * FROM scraped_competitions WHERE country_id = 6;
+
+SELECT
+    c.id AS country_id,
+    c.name AS country_name,
+    betano.league_name AS league_name_in_betano,
+    superbet.league_name AS league_name_in_superbet,
+    casa_pariurilor.league_name AS league_name_in_casa_pariurilor
+FROM countries AS c
+         LEFT JOIN (
+    SELECT sc.name AS league_name, sc.country_id
+    FROM scraped_competitions AS sc
+    WHERE sc.site_id = 1
+) AS betano ON betano.country_id = c.id
+         LEFT JOIN (
+    SELECT sc.name AS league_name, sc.country_id
+    FROM scraped_competitions AS sc
+    WHERE sc.site_id = 2
+
+) AS superbet ON superbet.country_id = c.id
+         LEFT JOIN (
+    SELECT sc.name AS league_name, sc.country_id
+    FROM scraped_competitions AS sc
+    WHERE sc.site_id = 3
+) AS casa_pariurilor ON casa_pariurilor.country_id = c.id
+WHERE c.id = 6
+ORDER BY c.name ASC;
+
+
+SELECT
+    MAX(CASE WHEN ss.id = 1 THEN sc.name END) AS league_name_in_betano,
+    MAX(CASE WHEN ss.id = 2 THEN sc.name END) AS league_name_in_superbet,
+    MAX(CASE WHEN ss.id = 3 THEN sc.name END) AS league_name_in_casa_pariurilor,
+    c.id AS country_id,
+    c.name AS country_name
+FROM scraped_competitions AS sc
+         INNER JOIN countries AS c ON sc.country_id = c.id
+         INNER JOIN sites_search AS ss ON sc.site_id = ss.id
+GROUP BY sc.name, c.id, c.name
+ORDER BY c.name ASC
+
 /* get links GROUP BY competition_id  HAVING  COUNT(lsp.site_id) > 2 */
 SELECT lsp.competition_id,
        com.name AS competition_name,

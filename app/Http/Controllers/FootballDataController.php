@@ -24,43 +24,43 @@ class FootballDataController extends Controller
     //region main data
     private ConfigWebDriverService $configWebDriverService;
     //demo data
-//    private array $dataUrlSearch = [
-//        'ro_liga1' => [
-//            "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
-//        ],
-//        "germania_bundesliga" =>[
-//            "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
-//        ],
-//        "anglia_premier_league" =>[
-//            "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
-//        ],
-//        'italia_seria_a' =>[
-//            'betano_url' => "https://ro.betano.com/sport/fotbal/competitii/italia/87/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/italia/italia-serie-a/toate?ti=104",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/italia-serie-a"
-//        ],
-//        'franta_liga1' => [
-//            "betano_url" => "https://ro.betano.com/sport/fotbal/franta/ligue-1/215/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/franta/franta-ligue-1/toate?ti=100",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/franta-ligue-1"
-//        ],
-//        'turcia_liga1' => [
-//            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/turcia/11384/",
-//            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/turcia/turcia-super-lig/toate?ti=323",
-//            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
-//        ],
-//    ];
-    private array $dataUrlSearch = [];
+    private array $dataUrlSearch = [
+        'ro_liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/romania-superliga",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-1"
+        ],
+        "germania_bundesliga" =>[
+            "betano_url" => "https://ro.betano.com/sport/fotbal/germania/bundesliga/216/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/germania/germania-bundesliga/toate?ti=245",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/germania-bundesliga"
+        ],
+        "anglia_premier_league" =>[
+            "betano_url" => "https://ro.betano.com/sport/fotbal/anglia/premier-league/1/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/anglia/anglia-premier-league/toate?ti=106",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/anglia-premier-league"
+        ],
+        'italia_seria_a' =>[
+            'betano_url' => "https://ro.betano.com/sport/fotbal/competitii/italia/87/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/italia/italia-serie-a/toate?ti=104",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/italia-serie-a"
+        ],
+        'franta_liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/franta/ligue-1/215/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/franta/franta-ligue-1/toate?ti=100",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/franta-ligue-1"
+        ],
+        'turcia_liga1' => [
+            "betano_url" => "https://ro.betano.com/sport/fotbal/competitii/turcia/11384/",
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/turcia/turcia-super-lig/toate?ti=323",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
+        ],
+    ];
+    //private array $dataUrlSearch = [];
     public function __construct(ConfigWebDriverService $configWebDriverService)
     {
         $this->configWebDriverService = $configWebDriverService;
-        $this->dataUrlSearch = $this->getDataUrlSearchFromQuery();
+        //$this->dataUrlSearch = $this->getDataUrlSearchFromQuery();
         //dd($this->dataUrlSearch);
     }
     private function getDataUrlSearchFromQuery():array

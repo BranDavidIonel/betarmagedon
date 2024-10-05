@@ -45,4 +45,11 @@ class ConfigWebDriverService
             }
         );
     }
+    public  function scrollDownCustom(RemoteWebDriver $driver, $nrScroll = 1 , $height = 700)
+    {
+        for ($i = 0; $i < $nrScroll; $i++) {
+            // Execute JavaScript to scroll down by 700 pixels each time
+            $driver->executeScript("window.scrollBy(0, $height);");
+        }
+    }
 }

@@ -44,14 +44,22 @@ class SaveLinkService
         if($findCountry){
             $countryId = $findCountry->id;
         }
-        DB::table('scraped_competitions')->insert([
-            'site_id' => $siteId,
-            'name' => $competitionName,
-            'country_id' => $countryId,
-            'country_name' => $countryName,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        $checkExistDataAboutSite = DB::table('scraped_competitions')
+                                    ->where('site_id', $siteId)
+                                    ->where('name', $competitionName)
+                                    ->where('country_id', $countryId)
+                                    ->where('country_name', $countryName)
+                                    ->first();
+        if(empty($checkExistDataAboutSite)) {
+            DB::table('scraped_competitions')->insert([
+                'site_id' => $siteId,
+                'name' => $competitionName,
+                'country_id' => $countryId,
+                'country_name' => $countryName,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
     }
 
     private function findOrCreateCompetition($competitionName, $countryName)

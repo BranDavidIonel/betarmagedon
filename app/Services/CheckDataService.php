@@ -20,7 +20,6 @@ class CheckDataService
     {
         // Convert the input to lowercase
         $countryName = strtolower($countryName);
-
         // Check if the country exists in the array
         return in_array($countryName, $this->countries);
     }
