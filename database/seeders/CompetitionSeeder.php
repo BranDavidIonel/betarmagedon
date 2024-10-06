@@ -14,42 +14,42 @@ class CompetitionSeeder extends Seeder
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'premier league',
-            'alias' => ['premier league', 'premier league cup', 'premier league clasare finala', 'premier league duel clasare', 'premier league golgheter', 'premier league cup u21']
+            'alias' => ['premier league', 'premier league cup', 'anglia premier league','premier league clasare finala', 'premier league duel clasare', 'premier league golgheter', 'premier league cup u21']
         ],
         [
             'id' => 2,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'fa cup',
-            'alias' => ['fa cup', 'cupa fa calificari']
+            'alias' => ['fa cup', 'cupa fa calificari', 'anglia cupa fa']
         ],
         [
             'id' => 3,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'efl cup',
-            'alias' => ['efl cup', 'cupa ligii f','cupa ligii']
+            'alias' => ['efl cup', 'anglia efl trophy']
         ],
         [
             'id' => 4,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'championship',
-            'alias' => ['championship']
+            'alias' => ['championship' , 'anglia championship']
         ],
         [
             'id' => 5,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league one',
-            'alias' => ['league one', '1']
+            'alias' => ['league one', 'anglia 1']
         ],
         [
             'id' => 6,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league two',
-            'alias' => ['league two', '2']
+            'alias' => ['league two', 'anglia 2' , 'anglia premier league 2 (u21)']
         ],
         [
             'id' => 7,
@@ -98,21 +98,30 @@ class CompetitionSeeder extends Seeder
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league three',
-            'alias' => ['league three', '3']
+            'alias' => ['league three', 'anglia 3']
         ],
         [
             'id' => 14,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league four',
-            'alias' => ['league four', '4']
+            'alias' => ['league four', 'anglia 4']
         ],
         [
             'id' => 15,
             'country_id' => 6,
             'country_name' => 'anglia',
             'name' => 'league five',
-            'alias' => ['league five', '5']
+            'alias' => ['league five', 'anglia 5']
+        ],
+        //endregion
+        //region albania nu are am pus ( 0, 1) in coada
+        [
+            'id' => 150,
+            'country_id' => 2,
+            'country_name' => 'albania',
+            'name' => 'kategoria superiore',
+            'alias' => ['kategoria superiore', 'albania 1']
         ],
         //endregion
         //region algeria
@@ -121,7 +130,25 @@ class CompetitionSeeder extends Seeder
             'country_id' => 3,
             'country_name' => 'algeria',
             'name' => 'ligue 1',
-            'alias' => ['ligue 1', '1']
+            'alias' => ['ligue 1', 'algeria 1']
+        ],
+        //endregion
+        //region andorra nu era pus (0) in coada
+        [
+            'id' => 130,
+            'country_id' => 4,
+            'country_name' => 'andorra',
+            'name' => 'primera divisio',
+            'alias' => ['primera divisio', 'andorra 1']
+        ],
+        //endregion
+        //region angora nu era pus (1) in coada
+        [
+            'id' => 131,
+            'country_id' => 4,
+            'country_name' => 'angola',
+            'name' => 'girabola',
+            'alias' => ['girabola', 'angola 1']
         ],
         //endregion
         //region arabia saudita data
@@ -130,22 +157,22 @@ class CompetitionSeeder extends Seeder
             'country_id' => 8,
             'country_name' => 'arabia saudita',
             'name' => 'pro league',
-            'alias' => ['pro league']
+            'alias' => ['pro league', 'arabia saudita 1' , 'professional league']
         ],
-        [
-            'id' => 15,
-            'country_id' => 8,
-            'country_name' => 'arabia saudita',
-            'name' => 'professional league',
-            'alias' => ['professional league']
-        ],
-        [
-            'id' => 16,
-            'country_id' => 8,
-            'country_name' => 'arabia saudita',
-            'name' => 'king cup',
-            'alias' => ['king cup']
-        ],
+//        [
+//            'id' => 15,
+//            'country_id' => 8,
+//            'country_name' => 'arabia saudita',
+//            'name' => 'professional league',
+//            'alias' => ['professional league']
+//        ],
+//        [
+//            'id' => 16,
+//            'country_id' => 8,
+//            'country_name' => 'arabia saudita',
+//            'name' => 'king cup',
+//            'alias' => ['king cup']
+//        ],
         //endregion
         //region argentina data
         [
@@ -160,14 +187,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 9,
             'country_name' => 'argentina',
             'name' => 'copa',
-            'alias' => ['copa', 'cupa']
+            'alias' => ['copa', 'cupa' ,'argentina 1']
         ],
         [
             'id' => 19,
             'country_id' => 9,
             'country_name' => 'argentina',
             'name' => 'primera b nacional',
-            'alias' => ['primera b nacional']
+            'alias' => ['primera b nacional', 'argentina-primera b']
         ],
         [
             'id' => 20,
@@ -202,7 +229,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 9,
             'country_name' => 'argentina',
             'name' => 'primera c torneo de reserva',
-            'alias' => ['primera c torneo de reserva']
+            'alias' => ['primera c torneo de reserva', 'argentina-primera c']
         ],
         [
             'id' => 25,
@@ -253,7 +280,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 11,
             'country_name' => 'australia',
             'name' => 'cupa',
-            'alias' => ['cupa', '1']
+            'alias' => ['cupa', 'australia 1']
         ],
         //endregion
         //region austria data
@@ -326,22 +353,8 @@ class CompetitionSeeder extends Seeder
             'name' => 'division profesional',
             'alias' => ['division profesional']
         ],
-        [
-            'id' => 41,
-            'country_id' => 23,
-            'country_name' => 'bolivia',
-            'name' => '1',
-            'alias' => ['1']
-        ],
         //endregion
         //region brazilia data
-        [
-            'id' => 42,
-            'country_id' => 26,
-            'country_name' => 'brazilia',
-            'name' => '1',
-            'alias' => ['1']
-        ],
         [
             'id' => 43,
             'country_id' => 26,
@@ -444,21 +457,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 35,
             'country_name' => 'cehia',
             'name' => '1 liga',
-            'alias' => ['1 liga']
+            'alias' => ['1 liga', 'cehia 1 ']
         ],
         [
             'id' => 57,
             'country_id' => 35,
             'country_name' => 'cehia',
             'name' => '2 liga',
-            'alias' => ['2 liga', '2 a']
-        ],
-        [
-            'id' => 58,
-            'country_id' => 35,
-            'country_name' => 'cehia',
-            'name' => '1',
-            'alias' => ['1']
+            'alias' => ['2 liga', 'cehia 2']
         ],
         [
             'id' => 59,
@@ -502,7 +508,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 36,
             'country_name' => 'chile',
             'name' => 'primera division',
-            'alias' => ['primera division']
+            'alias' => ['primera division' , 'chile 1']
         ],
         [
             'id' => 65,
@@ -516,21 +522,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 36,
             'country_name' => 'chile',
             'name' => 'primera b',
-            'alias' => ['primera b']
-        ],
-        [
-            'id' => 67,
-            'country_id' => 36,
-            'country_name' => 'chile',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
-            'id' => 68,
-            'country_id' => 36,
-            'country_name' => 'chile',
-            'name' => '2',
-            'alias' => ['2']
+            'alias' => ['primera b', 'chile 2']
         ],
         //endregion
         //region china data
@@ -541,13 +533,6 @@ class CompetitionSeeder extends Seeder
             'name' => 'super league',
             'alias' => ['super league']
         ],
-        [
-            'id' => 70,
-            'country_id' => 37,
-            'country_name' => 'china',
-            'name' => '1',
-            'alias' => ['1']
-        ],
         //endregion
         //region cipru data
         [
@@ -555,7 +540,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 38,
             'country_name' => 'cipru',
             'name' => 'divizia 1',
-            'alias' => ['divizia 1', '1']
+            'alias' => ['divizia 1', 'cipru 1']
         ],
         [
             'id' => 72,
@@ -578,7 +563,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 39,
             'country_name' => 'columbia',
             'name' => 'primera a clausura',
-            'alias' => ['primera a clausura']
+            'alias' => ['primera a clausura', 'columbia 1']
         ],
         [
             'id' => 75,
@@ -592,7 +577,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 39,
             'country_name' => 'columbia',
             'name' => 'primera b clausura',
-            'alias' => ['primera b clausura']
+            'alias' => ['primera b clausura', 'columbia 2']
         ],
         [
             'id' => 77,
@@ -614,13 +599,6 @@ class CompetitionSeeder extends Seeder
             'country_name' => 'columbia',
             'name' => 'categoria primera b',
             'alias' => ['categoria primera b']
-        ],
-        [
-            'id' => 80,
-            'country_id' => 39,
-            'country_name' => 'columbia',
-            'name' => '1',
-            'alias' => ['1']
         ],
         [
             'id' => 81,
@@ -666,14 +644,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 45,
             'country_name' => 'costa rica',
             'name' => 'liga fpd',
-            'alias' => ['liga fpd']
+            'alias' => ['liga fpd', 'costa rica 1']
         ],
         [
             'id' => 87,
             'country_id' => 45,
             'country_name' => 'costa rica',
             'name' => 'primera division apertura',
-            'alias' => ['primera division apertura']
+            'alias' => ['primera division apertura', 'costa rica 1']
         ],
     //endregion
         //region croatia data
@@ -682,28 +660,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 47,
             'country_name' => 'croatia',
             'name' => 'hnl',
-            'alias' => ['hnl']
-        ],
-        [
-            'id' => 89,
-            'country_id' => 47,
-            'country_name' => 'croatia',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
-            'id' => 90,
-            'country_id' => 47,
-            'country_name' => 'croatia',
-            'name' => '2',
-            'alias' => ['2']
-        ],
-        [
-            'id' => 91,
-            'country_id' => 47,
-            'country_name' => 'croatia',
-            'name' => '3',
-            'alias' => ['3']
+            'alias' => ['hnl', 'croatia 1']
         ],
     //endregion
         //region danemarca data
@@ -787,25 +744,11 @@ class CompetitionSeeder extends Seeder
             'alias' => ['liga pro serie b']
         ],
         [
-            'id' => 103,
-            'country_id' => 53,
-            'country_name' => 'ecuador',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
             'id' => 104,
             'country_id' => 53,
             'country_name' => 'ecuador',
             'name' => 'cupa',
             'alias' => ['cupa']
-        ],
-        [
-            'id' => 105,
-            'country_id' => 53,
-            'country_name' => 'ecuador',
-            'name' => '2',
-            'alias' => ['2']
         ],
         //endregion
         //region el salvador data
@@ -839,14 +782,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 58,
             'country_name' => 'estonia',
             'name' => 'premium liiga',
-            'alias' => ['premium liiga']
-        ],
-        [
-            'id' => 110,
-            'country_id' => 58,
-            'country_name' => 'estonia',
-            'name' => '1',
-            'alias' => ['1']
+            'alias' => ['premium liiga', 'estonia 1']
         ],
         [
             'id' => 111,
@@ -863,13 +799,6 @@ class CompetitionSeeder extends Seeder
             'country_name' => 'etiopia',
             'name' => 'premier league',
             'alias' => ['premier league']
-        ],
-        [
-            'id' => 113,
-            'country_id' => 60,
-            'country_name' => 'etiopia',
-            'name' => '1',
-            'alias' => ['1']
         ],
     //endregion
         //region finlanda data
@@ -893,20 +822,6 @@ class CompetitionSeeder extends Seeder
             'country_name' => 'finlanda',
             'name' => 'kolmonen',
             'alias' => ['kolmonen']
-        ],
-        [
-            'id' => 117,
-            'country_id' => 63,
-            'country_name' => 'finlanda',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
-            'id' => 118,
-            'country_id' => 63,
-            'country_name' => 'finlanda',
-            'name' => '2',
-            'alias' => ['2']
         ],
         [
             'id' => 119,
@@ -957,7 +872,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 64,
             'country_name' => 'franta',
             'name' => 'ligue 1',
-            'alias' => ['ligue 1']
+            'alias' => ['ligue 1', 'franta ligue 1']
         ],
         [
             'id' => 126,
@@ -971,7 +886,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 64,
             'country_name' => 'franta',
             'name' => 'ligue 2',
-            'alias' => ['ligue 2', '2']
+            'alias' => ['ligue 2', 'franta 2']
         ],
         [
             'id' => 128,
@@ -980,13 +895,6 @@ class CompetitionSeeder extends Seeder
             'name' => 'national',
             'alias' => ['national']
         ],
-        [
-            'id' => 129,
-            'country_id' => 64,
-            'country_name' => 'franta',
-            'name' => '3',
-            'alias' => ['3']
-        ],
         //endregion
         //region georgia data
         [
@@ -994,14 +902,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 67,
             'country_name' => 'georgia',
             'name' => 'erovnuli liga',
-            'alias' => ['erovnuli liga']
-        ],
-        [
-            'id' => 131,
-            'country_id' => 67,
-            'country_name' => 'georgia',
-            'name' => '1',
-            'alias' => ['1']
+            'alias' => ['erovnuli liga', 'georgia 1']
         ],
         //endregion
         //region germania data
@@ -1010,7 +911,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 68,
             'country_name' => 'germania',
             'name' => 'bundesliga',
-            'alias' => ['bundesliga']
+            'alias' => ['bundesliga', 'germania bundesliga', 'germania 1','germania 1 (f)']
         ],
         [
             'id' => 133,
@@ -1024,14 +925,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 68,
             'country_name' => 'germania',
             'name' => '2 bundesliga',
-            'alias' => ['2 bundesliga', '2']
+            'alias' => ['2 bundesliga', 'germania 2']
         ],
         [
             'id' => 135,
             'country_id' => 68,
             'country_name' => 'germania',
             'name' => '3 liga',
-            'alias' => ['3 liga', '3']
+            'alias' => ['3 liga', 'germania 3']
         ],
         [
             'id' => 136,
@@ -1045,7 +946,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 68,
             'country_name' => 'germania',
             'name' => 'cupa',
-            'alias' => ['cupa']
+            'alias' => ['cupa' , 'germania cupa']
         ],
         [
             'id' => 138,
@@ -1070,19 +971,19 @@ class CompetitionSeeder extends Seeder
         ],
 //endregion
         //region grecia data
-        [
-            'id' => 141,
-            'country_id' => 70,
-            'country_name' => 'grecia',
-            'name' => '1 castigator',
-            'alias' => ['1 castigator']
-        ],
+//        [
+//            'id' => 141,
+//            'country_id' => 70,
+//            'country_name' => 'grecia',
+//            'name' => '1 castigator',
+//            'alias' => ['1 castigator']
+//        ],
         [
             'id' => 142,
             'country_id' => 70,
             'country_name' => 'grecia',
             'name' => 'super league',
-            'alias' => ['super league']
+            'alias' => ['super league', 'grecia 1']
         ],
         [
             'id' => 143,
@@ -1096,30 +997,9 @@ class CompetitionSeeder extends Seeder
             'country_id' => 70,
             'country_name' => 'grecia',
             'name' => 'super league 2 grb',
-            'alias' => ['super league 2 grb']
+            'alias' => ['super league 2 grb', 'grecia 2']
         ],
-        [
-            'id' => 145,
-            'country_id' => 70,
-            'country_name' => 'grecia',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
-            'id' => 146,
-            'country_id' => 70,
-            'country_name' => 'grecia',
-            'name' => 'cupa',
-            'alias' => ['cupa']
-        ],
-        [
-            'id' => 147,
-            'country_id' => 70,
-            'country_name' => 'grecia',
-            'name' => '2',
-            'alias' => ['2']
-        ],
-//endregion
+        //endregion
         //region guatemala data
         [
             'id' => 148,
@@ -1202,14 +1082,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 80,
             'country_name' => 'indonezia',
             'name' => 'liga 1',
-            'alias' => ['liga 1', '1']
+            'alias' => ['liga 1', 'indonezia 1']
         ],
         [
             'id' => 159,
             'country_id' => 80,
             'country_name' => 'indonezia',
             'name' => 'liga 2',
-            'alias' => ['liga 2']
+            'alias' => ['liga 2', 'indonezia 2']
         ],
         [
             'id' => 160,
@@ -1230,25 +1110,11 @@ class CompetitionSeeder extends Seeder
 //endregion
         //region iran data
         [
-            'id' => 162,
-            'country_id' => 82,
-            'country_name' => 'iran',
-            'name' => 'persian gulf pro league',
-            'alias' => ['persian gulf pro league', 'pro league']
-        ],
-        [
-            'id' => 163,
-            'country_id' => 82,
-            'country_name' => 'iran',
-            'name' => '1',
-            'alias' => ['1', 'iran 1']
-        ],
-        [
             'id' => 164,
             'country_id' => 82,
             'country_name' => 'iran',
             'name' => 'pro league',
-            'alias' => ['pro league', 'persian gulf pro league']
+            'alias' => ['pro league', 'persian gulf pro league', 'iran 1']
         ],
 //endregion
         //region irlanda data
@@ -1257,7 +1123,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 83,
             'country_name' => 'irlanda',
             'name' => 'first division',
-            'alias' => ['first division']
+            'alias' => ['first division', 'prima divizie', 'irlanda 1']
         ],
         [
             'id' => 166,
@@ -1266,13 +1132,13 @@ class CompetitionSeeder extends Seeder
             'name' => 'premier division',
             'alias' => ['premier division']
         ],
-        [
-            'id' => 167,
-            'country_id' => 83,
-            'country_name' => 'irlanda',
-            'name' => 'prima divizie',
-            'alias' => ['prima divizie']
-        ],
+//        [
+//            'id' => 167,
+//            'country_id' => 83,
+//            'country_name' => 'irlanda',
+//            'name' => 'prima divizie',
+//            'alias' => ['prima divizie']
+//        ],
         [
             'id' => 168,
             'country_id' => 83,
@@ -1288,18 +1154,11 @@ class CompetitionSeeder extends Seeder
             'alias' => ['national league f']
         ],
         [
-            'id' => 170,
-            'country_id' => 83,
-            'country_name' => 'irlanda',
-            'name' => '1',
-            'alias' => ['1']
-        ],
-        [
             'id' => 171,
             'country_id' => 83,
             'country_name' => 'irlanda',
             'name' => 'de nord 1',
-            'alias' => ['de nord 1']
+            'alias' => ['de nord 1', 'irlanda de nord 1']
         ],
 //endregion
         //region islanda data
@@ -1308,7 +1167,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 84,
             'country_name' => 'islanda',
             'name' => 'urvalsdeild',
-            'alias' => ['urvalsdeild']
+            'alias' => ['urvalsdeild', 'islanda 1']
         ],
         [
             'id' => 173,
@@ -1316,13 +1175,6 @@ class CompetitionSeeder extends Seeder
             'country_name' => 'islanda',
             'name' => '2 flokkur u19',
             'alias' => ['2 flokkur u19']
-        ],
-        [
-            'id' => 174,
-            'country_id' => 84,
-            'country_name' => 'islanda',
-            'name' => '1',
-            'alias' => ['1']
         ],
         [
             'id' => 175,
@@ -1352,7 +1204,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 85,
             'country_name' => 'israel',
             'name' => 'ligat haal',
-            'alias' => ['ligat haal']
+            'alias' => ['ligat haal' , 'israel 1']
         ],
         [
             'id' => 179,
@@ -1366,7 +1218,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 85,
             'country_name' => 'israel',
             'name' => 'liga leumit',
-            'alias' => ['liga leumit']
+            'alias' => ['liga leumit', 'israel 2']
         ],
         [
             'id' => 181,
@@ -1396,12 +1248,21 @@ class CompetitionSeeder extends Seeder
             'name' => 'ligat al f',
             'alias' => ['ligat al f']
         ],
+//        [
+//            'id' => 185,
+//            'country_id' => 85,
+//            'country_name' => 'israel',
+//            'name' => '2',
+//            'alias' => ['2']
+//        ],
+        //endregion
+        //region italia !! nou are dublat id( am pus 0)
         [
-            'id' => 185,
-            'country_id' => 85,
-            'country_name' => 'israel',
-            'name' => '2',
-            'alias' => ['2']
+            'id' => 1850,
+            'country_id' => 86,
+            'country_name' => 'italia',
+            'name' => 'serie a',
+            'alias' => ['serie a', 'italia serie a']
         ],
         //endregion
         //region polonia data
@@ -1424,49 +1285,49 @@ class CompetitionSeeder extends Seeder
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => 'i liga',
-            'alias' => ['i liga', '1']
+            'alias' => ['i liga', 'polonia 1']
         ],
         [
             'id' => 189,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => 'ii liga',
-            'alias' => ['ii liga', '2']
+            'alias' => ['ii liga', 'polonia 2']
         ],
         [
             'id' => 190,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => '3_0',
-            'alias' => ['3_0', '3']
+            'alias' => ['3_0', 'polonia 3']
         ],
         [
             'id' => 191,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => '4 gr i',
-            'alias' => ['4 gr i', '4']
+            'alias' => ['4 gr i', 'polonia 4']
         ],
         [
             'id' => 192,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => '4 gr ii',
-            'alias' => ['4 gr ii', '4']
+            'alias' => ['4 gr ii', 'polonia 4']
         ],
         [
             'id' => 193,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => '4 gr iii',
-            'alias' => ['4 gr iii', '4']
+            'alias' => ['4 gr iii', 'polonia 4']
         ],
         [
             'id' => 194,
             'country_id' => 137,
             'country_name' => 'polonia',
             'name' => '4 gr iv',
-            'alias' => ['4 gr iv', '4']
+            'alias' => ['4 gr iv', 'polonia 4']
         ],
         //endregion
         //region portugalia data
@@ -1475,28 +1336,28 @@ class CompetitionSeeder extends Seeder
             'country_id' => 138,
             'country_name' => 'portugalia',
             'name' => 'primeira liga',
-            'alias' => ['primeira liga', 'liga 1', '1']
+            'alias' => ['primeira liga', 'liga 1', 'portugalia 1']
         ],
         [
             'id' => 196,
             'country_id' => 138,
             'country_name' => 'portugalia',
             'name' => 'liga 2',
-            'alias' => ['liga 2', '2']
+            'alias' => ['liga 2', 'portugalia 2']
         ],
         [
             'id' => 197,
             'country_id' => 138,
             'country_name' => 'portugalia',
             'name' => 'liga 3',
-            'alias' => ['liga 3', '3']
+            'alias' => ['liga 3', 'portugalia 3']
         ],
         [
             'id' => 198,
             'country_id' => 138,
             'country_name' => 'portugalia',
             'name' => 'liga 3 grb',
-            'alias' => ['liga 3 grb', '3']
+            'alias' => ['liga 3 grb', 'portugalia 3']
         ],
         [
             'id' => 199,
@@ -1512,7 +1373,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 139,
             'country_name' => 'qatar',
             'name' => 'stars league',
-            'alias' => ['stars league', 'liga 1', '1']
+            'alias' => ['stars league', 'liga 1', 'qatar 1']
         ],
         //endregion
         //region romania data
@@ -1521,21 +1382,21 @@ class CompetitionSeeder extends Seeder
             'country_id' => 140,
             'country_name' => 'romania',
             'name' => 'liga 1',
-            'alias' => ['liga 1', '1', 'superliga']
+            'alias' => ['liga 1', 'romania 1', 'superliga']
         ],
         [
             'id' => 202,
             'country_id' => 140,
             'country_name' => 'romania',
             'name' => 'liga 2',
-            'alias' => ['liga 2', '2']
+            'alias' => ['liga 2', 'romania 2']
         ],
         [
             'id' => 203,
             'country_id' => 140,
             'country_name' => 'romania',
             'name' => 'cupa romaniei betano',
-            'alias' => ['cupa romaniei betano', 'cupa']
+            'alias' => ['cupa romaniei betano', 'romania cupa']
         ],
         [
             'id' => 204,
@@ -1593,14 +1454,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 141,
             'country_name' => 'rusia',
             'name' => 'premier league',
-            'alias' => ['premier league', '1']
+            'alias' => ['premier league', 'rusia 1']
         ],
         [
             'id' => 212,
             'country_id' => 141,
             'country_name' => 'rusia',
             'name' => 'fnl',
-            'alias' => ['fnl', '2']
+            'alias' => ['fnl', 'rusia 2']
         ],
         [
             'id' => 213,
@@ -1625,7 +1486,23 @@ class CompetitionSeeder extends Seeder
             'country_id' => 147,
             'country_name' => 'serbia',
             'name' => 'superliga',
-            'alias' => ['superliga', 'super liga', 'liga 1']
+            'alias' => ['superliga', 'super liga', 'liga 1', 'serbia liga 1']
+        ],
+        //endregion
+        //region spania ! nou are dublat id( am pus 0, 1) in coada
+        [
+            'id' => 2150,
+            'country_id' => 185,
+            'country_name' => 'spania',
+            'name' => 'supercupa',
+            'alias' => ['supercupa', 'spania supercupa']
+        ],
+        [
+            'id' => 2151,
+            'country_id' => 185,
+            'country_name' => 'spania',
+            'name' => 'la liga',
+            'alias' => ['la liga', 'spania la liga']
         ],
         //endregion
         //region slovacia data
@@ -1634,14 +1511,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 152,
             'country_name' => 'slovacia',
             'name' => '1 liga',
-            'alias' => ['1 liga', 'liga 1', '1']
+            'alias' => ['1 liga', 'liga 1', 'slovacia 1']
         ],
         [
             'id' => 217,
             'country_id' => 152,
             'country_name' => 'slovacia',
             'name' => '2 liga',
-            'alias' => ['2 liga', 'liga 2', '2']
+            'alias' => ['2 liga', 'liga 2', 'slovacia 2']
         ],
         [
             'id' => 218,
@@ -1657,14 +1534,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 153,
             'country_name' => 'slovenia',
             'name' => 'prvaliga',
-            'alias' => ['prvaliga', '1 liga', '1']
+            'alias' => ['prvaliga', '1 liga', 'slovenia 1']
         ],
         [
             'id' => 220,
             'country_id' => 153,
             'country_name' => 'slovenia',
             'name' => '2 snl',
-            'alias' => ['2 snl', 'liga 2', '2']
+            'alias' => ['2 snl', 'liga 2', 'slovenia 2']
         ],
         //endregion
         //region suedia data
@@ -1673,14 +1550,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 157,
             'country_name' => 'suedia',
             'name' => 'allsvenskan',
-            'alias' => ['allsvenskan', '1']
+            'alias' => ['allsvenskan', 'suedia 1']
         ],
         [
             'id' => 222,
             'country_id' => 157,
             'country_name' => 'suedia',
             'name' => 'superettan',
-            'alias' => ['superettan', '2']
+            'alias' => ['superettan', 'suedia 2']
         ],
         //endregion
         //region tanzania data
@@ -1689,7 +1566,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 163,
             'country_name' => 'tanzania',
             'name' => 'premier league',
-            'alias' => ['premier league', '1']
+            'alias' => ['premier league', 'tanzania 1']
         ],
         //endregion
         //region thailanda data
@@ -1698,7 +1575,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 164,
             'country_name' => 'thailanda',
             'name' => 'thai league 1',
-            'alias' => ['thai league 1', '1']
+            'alias' => ['thai league 1', 'thailanda 1']
         ],
         //endregion
         //region tunisia data
@@ -1707,7 +1584,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 169,
             'country_name' => 'tunisia',
             'name' => 'ligue 1',
-            'alias' => ['ligue 1', '1', 'liga i']
+            'alias' => ['ligue 1', 'tunisia 1', 'liga i']
         ],
         //endregion
         //region turcia data
@@ -1716,14 +1593,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 170,
             'country_name' => 'turcia',
             'name' => 'super lig',
-            'alias' => ['super lig', 'liga 1', '1']
+            'alias' => ['super lig', 'liga 1', 'turcia 1']
         ],
         [
             'id' => 227,
             'country_id' => 170,
             'country_name' => 'turcia',
             'name' => 'tff 1 lig',
-            'alias' => ['tff 1 lig', '1 lig', '2']
+            'alias' => ['tff 1 lig', '1 lig', 'turcia 2']
         ],
     //endregion
         //region ucraina data
@@ -1732,7 +1609,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 173,
             'country_name' => 'ucraina',
             'name' => 'premier liga',
-            'alias' => ['premier liga', 'premier league', '1']
+            'alias' => ['premier liga', 'premier league', 'ucraina 1']
         ],
         //endregion
         //region ungaria data
@@ -1741,7 +1618,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 175,
             'country_name' => 'ungaria',
             'name' => 'nb i',
-            'alias' => ['nb i', 'liga 1', '1']
+            'alias' => ['nb i', 'liga 1', 'ungaria 1']
         ],
         //endregion
         //region uruguay data
@@ -1750,14 +1627,14 @@ class CompetitionSeeder extends Seeder
             'country_id' => 176,
             'country_name' => 'uruguay',
             'name' => 'primera division',
-            'alias' => ['primera division', 'liga 1', '1']
+            'alias' => ['primera division', 'liga 1', 'uruguay 1']
         ],
         [
             'id' => 231,
             'country_id' => 176,
             'country_name' => 'uruguay',
             'name' => 'segunda division',
-            'alias' => ['segunda division', 'liga 2', '2']
+            'alias' => ['segunda division', 'liga 2', 'uruguay 2']
         ],
         [
             'id' => 232,
@@ -1773,7 +1650,7 @@ class CompetitionSeeder extends Seeder
             'country_id' => 177,
             'country_name' => 'uzbekistan',
             'name' => 'superligasi',
-            'alias' => ['superligasi', 'super league', '1']
+            'alias' => ['superligasi', 'super league', 'uzbekistan 1']
         ],
         //endregion
         //region venezuela data
@@ -1782,8 +1659,46 @@ class CompetitionSeeder extends Seeder
             'country_id' => 180,
             'country_name' => 'venezuela',
             'name' => 'primera division',
-            'alias' => ['primera division', 'liga 1', '1']
-        ]
+            'alias' => ['primera division', 'liga 1', 'venezuela 1']
+        ],
+        //endregion
+
+        //region competition between countries
+        [
+            'id' => 235,
+            'country_id' => null,
+            'country_name' => null,
+            'name' => 'liga natiunilor',
+            'alias' => ['liga natiunilor']
+        ],
+        [
+            'id' => 236,
+            'country_id' => null,
+            'country_name' => null,
+            'name' => 'calificari cm america de sud',
+            'alias' => ['calificari cm america de sud']
+        ],
+        [
+            'id' => 237,
+            'country_id' => null,
+            'country_name' => null,
+            'name' => 'liga campionilor',
+            'alias' => ['liga campionilor']
+        ],
+        [
+            'id' => 238,
+            'country_id' => null,
+            'country_name' => null,
+            'name' => 'europa league',
+            'alias' => ['europa league']
+        ],
+        [
+            'id' => 239,
+            'country_id' => null,
+            'country_name' => null,
+            'name' => 'conference league',
+            'alias' => ['conference league']
+        ],
         //endregion
     ];
 

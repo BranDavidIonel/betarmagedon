@@ -193,7 +193,8 @@ class CountriesSeeder extends Seeder
         'vietnam',
         'yemen',
         'zambia',
-        'zimbabwe'
+        'zimbabwe',
+        'spania'
     ];
     /**
      * Run the database seeds.

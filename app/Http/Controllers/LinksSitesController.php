@@ -107,7 +107,7 @@ class LinksSitesController extends Controller
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
                 //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
-                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {
@@ -217,7 +217,7 @@ class LinksSitesController extends Controller
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
                 //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
-                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             $driver->quit();
             dd($allFootBallLinks);
@@ -349,22 +349,27 @@ class LinksSitesController extends Controller
             $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//ul/li[4][contains(@class, 'item-sport')]/ul/li[contains(@class, 'item-competition')]/a"));
             foreach($linksLeagueElements as $linkElement){
                 $linkleagueUrl = $linkElement->getAttribute('href');
+                $leagueNameElement = $linkElement->findElement(WebDriverBy::xpath(".//span[contains(@class, 'competition-name')]"));
+                // Extract the league name text
+                $leagueName = $leagueNameElement->getText();
+                $leagueName = strtolower($leagueName);
                 // Split the URL by "/"
                 $parts = explode('/', $linkleagueUrl);
                 $countryWithLeagueName = $parts[3];
                 $countryWithLeagueNameArray = explode('-', $countryWithLeagueName);
                 if(count($countryWithLeagueNameArray) == 1){
-                    $leagueName = $countryWithLeagueNameArray[0];
+                    //$leagueName = $countryWithLeagueNameArray[0];
                     $countryName = null;
-                }else{
+                }
+                else{
                     $countryName = $countryWithLeagueNameArray[0];
-                    if(!$this->checkDataService->checkCountryExist($countryName)){
-                        $countryName = null;
-                        $leagueName = str_replace( '-', ' ', $countryWithLeagueName);;
-                    }else{
-                        $countryWithLeagueName = str_replace( '-', ' ', $countryWithLeagueName);
-                        $leagueName = str_replace($countryName, '', $countryWithLeagueName);//remove country and remains only league name
-                    }
+//                    if(!$this->checkDataService->checkCountryExist($countryName)){
+//                        $countryName = null;
+//                        $leagueName = str_replace( '-', ' ', $countryWithLeagueName);;
+//                    }else{
+//                        $countryWithLeagueName = str_replace( '-', ' ', $countryWithLeagueName);
+//                        $leagueName = str_replace($countryName, '', $countryWithLeagueName);//remove country and remains only league name
+//                    }
                 }
                 //nu ii bun inca ce am pe aici
                 //$countryName = trim(str_replace('-', ' ', $countryName));
@@ -378,7 +383,7 @@ class LinksSitesController extends Controller
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
                 //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
-                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {
