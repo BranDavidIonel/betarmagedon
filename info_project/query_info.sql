@@ -86,3 +86,12 @@ ALTER TABLE competitions AUTO_INCREMENT = 1;
 
 DELETE FROM links_search_page;
 ALTER TABLE links_search_page AUTO_INCREMENT = 1;
+/* find to add competition */
+SELECT lsp.link_league , c.id AS competetionID,lsp.site_id, c.name, c.alias
+FROM links_search_page AS lsp
+         INNER JOIN competitions AS c ON c.id = lsp.competition_id
+         INNER JOIN countries AS co ON co.id = c.country_id
+WHERE co.name = 'romania';
+
+INSERT INTO `links_search_page` (`id`, `competition_id`, `site_id`, `type_game`, `link_league`, `with_data`, `scraped`, `created_at`, `updated_at`)
+VALUES (NULL, '178', '1', 'football', 'https://ro.betano.com/sport/fotbal/romania/liga-1/17088/', '0', '0', NOW(), NOW())

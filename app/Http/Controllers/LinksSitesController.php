@@ -107,7 +107,7 @@ class LinksSitesController extends Controller
                 $link = $dataLink['link'];
                 $countryName = $dataLink['countryName'];
                 //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
-                $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
+                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             dd($allFootBallLinks);
         }catch (\Exception $e) {
@@ -373,7 +373,7 @@ class LinksSitesController extends Controller
                 }
                 //nu ii bun inca ce am pe aici
                 //$countryName = trim(str_replace('-', ' ', $countryName));
-                $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $searchSiteUrl.$linkleagueUrl, 'countryName' => $countryName];
+                $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $linkleagueUrl, 'countryName' => $countryName];
             }
 
             $driver->quit();

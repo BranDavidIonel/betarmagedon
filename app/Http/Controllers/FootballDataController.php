@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AccepCookiesButtonService;
+use App\Services\SaveMatchService;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
@@ -23,6 +24,7 @@ class FootballDataController extends Controller
 {
     //region main data
     private ConfigWebDriverService $configWebDriverService;
+    private SaveMatchService $saveMatchService;
     //demo data
 //    private array $dataUrlSearch = [
 //        'ro_liga1' => [
@@ -56,10 +58,11 @@ class FootballDataController extends Controller
 //            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/turcia-1"
 //        ],
 //    ];
-    //private array $dataUrlSearch = [];
-    public function __construct(ConfigWebDriverService $configWebDriverService)
+    private array $dataUrlSearch = [];
+    public function __construct(ConfigWebDriverService $configWebDriverService, SaveMatchService $saveMatchService)
     {
         $this->configWebDriverService = $configWebDriverService;
+        $this->saveMatchService = $saveMatchService;
         $this->dataUrlSearch = $this->getDataUrlSearchFromQuery();
         //dd($this->dataUrlSearch);
     }
@@ -171,8 +174,10 @@ class FootballDataController extends Controller
                     'casapariurilor_matches' => $casapariurilorMatches
                 ];
 
+
                 $searchRezultMatches = [];
                 foreach($betanoMatches as $betanoMatch){
+
                     if(!$this->validateMatch($betanoMatch)){
                         continue;//next match search
                     }
@@ -184,6 +189,10 @@ class FootballDataController extends Controller
                     if(!$this->validateMatch($findMatchCasapariurilor)){
                         continue;//next match search
                     }
+                    $this->saveMatchService->insertScrapedMatch($urlBetano, $betanoMatch, 'betano_matches' );
+                    $this->saveMatchService->insertScrapedMatch($urlSuperbet, $findMatchSuperbet, 'suberbet_matches' );
+                    $this->saveMatchService->insertScrapedMatch($urlCasapariurilor, $findMatchCasapariurilor, 'casapariurilor_matches' );
+
                     $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
                     if(!empty($searchProfit)){
                         $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor],
@@ -402,7 +411,7 @@ class FootballDataController extends Controller
             $driver->get($urlSearchMatches);
             $this->configWebDriverService->waitForPageReady($driver);
             //don't work without this ( check is page ready like above)
-            $driver->wait(5)->until(
+            $driver->wait(6)->until(
                     WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
             );
             //events-by-date , is card with multiples matches group on date
@@ -461,6 +470,7 @@ class FootballDataController extends Controller
             Log::error('eroare scrapeSuperbetWithClassNameMethod',$e->getTrace());
             echo "A apărut o eroare scrapeSuperbetWithClassNameMethod:" . $e->getMessage(). "linia: ".$e->getLine();
             $driver->quit();
+            dd($e);
             exit;
         } finally {
             $driver->quit();
