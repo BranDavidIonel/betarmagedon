@@ -16,9 +16,9 @@
             <h2>Betano</h2>
             @php $indexBetano=0; @endphp
             @foreach($matchesData['betano_matches'] as $keyMatchName => $match)
-                @if(!empty($match['1']))
+                @if(!empty($match->odds['1']))
                     @php $indexBetano++; @endphp
-                    <p>{{ $indexBetano }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }} , date -> {{ $match['startTime'] }} {{ !empty($match['isLive']) ? ', is live now' : ""}}</p>
+                    <p>{{ $indexBetano }} Match {{ $keyMatchName  }} [1] -> {{ $match->odds['1'] }} [x] -> {{ $match->odds['x'] }} [2]-> {{ $match->odds['2'] }} , date -> {{ $match->start_time }} </p>
                 @endif
             @endforeach
         @endif
@@ -26,9 +26,9 @@
             <h2>Superbet</h2>
             @php $indexSuperbet=0; @endphp
             @foreach($matchesData['suberbet_matches'] as $keyMatchName => $match)
-                @if(!empty($match['1']))
+                @if(!empty($match->odds['1']))
                     @php $indexSuperbet++; @endphp
-                    <p>{{ $indexSuperbet }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }} , date -> {{ $match['startTime'] }} {{ !empty($match['isLive']) ? ', is live now' : ""}}</p>
+                    <p>{{ $indexSuperbet }} Match {{ $keyMatchName  }} [1] -> {{ $match->odds['1'] }} [x] -> {{ $match->odds['x'] }} [2]-> {{ $match->odds['2'] }} , date -> {{ $match->start_time }} </p>
                 @endif
             @endforeach
         @endif
@@ -36,9 +36,9 @@
             @php $indexCasaPariurilor=0; @endphp
             <h2>Casa Pariurilor</h2>
             @foreach($matchesData['casapariurilor_matches'] as $keyMatchName => $match)
-                @if(!empty($match['1']))
+                @if(!empty($match->odds['1']))
                     @php $indexCasaPariurilor++; @endphp
-                    <p>{{ $indexCasaPariurilor }} Match {{ $keyMatchName  }} [1] -> {{ $match['1'] }} [x] -> {{ $match['x'] }} [2]-> {{ $match['2'] }} , date -> {{ $match['startTime'] }} {{ !empty($match['isLive']) ? ', is live now' : ""}}</p>
+                    <p>{{ $indexCasaPariurilor }} Match {{ $keyMatchName  }} [1] -> {{ $match->odds['1'] }} [x] -> {{ $match->odds['x'] }} [2]-> {{ $match->odds['2'] }} , date -> {{ $match->start_time }} </p>
                 @endif
             @endforeach
         @endif

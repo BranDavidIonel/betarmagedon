@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Competition;
 use App\Services\AccepCookiesButtonService;
 use App\Services\SaveMatchService;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -211,10 +212,51 @@ class FootballDataController extends Controller
                 Log::info("end search for:$keyLigName");
             }
 
+
+
             return view('football', compact("returnAllMathcesData"));
         } catch (\Exception $e) {
             dd($e);
         }
+    }
+    public function searchMatchesDataFromDB()
+    {
+        $scrapedMatches = DB::table("scraped_matches AS sm")
+                        ->join("links_search_page AS lsp", "lsp.id", "=", "sm.link_search_page_id")
+                        ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id,
+                                                sm.link_search_page_id, sm.team1_name, sm.team2_name, sm.odds, sm.start_time")
+                        ->orderBy("start_time", "desc")->get();
+        $scrapedMatches = $scrapedMatches->map(function($match) {
+            $match->odds = json_decode($match->odds, true);
+            return $match;
+        });
+        $comepetitionsIds = $scrapedMatches->pluck("competition_id")->toArray();
+
+        $comepetitions = DB::table("competitions")->whereIn("id", $comepetitionsIds)
+                        ->selectRaw("id, name")->get();
+        $returnAllMathcesData = [];
+        foreach ($comepetitions as $competition){
+            $nameLeague = $competition->name;
+            $betanoMatches = $scrapedMatches->where("competition_id", $competition->id)
+                                            ->where("site_id", 1)
+                                            ->toArray();
+            $superbetMatches = $scrapedMatches->where("competition_id", $competition->id)
+                                            ->where("site_id", 2)
+                                            ->toArray();
+            $casapariurilorMatches = $scrapedMatches->where("competition_id", $competition->id)
+                ->where("site_id", 3)
+                ->toArray();
+            $returnAllMathcesData[$nameLeague] = [
+                'betano_matches' => $betanoMatches,
+                'suberbet_matches' => $superbetMatches,
+                'casapariurilor_matches' => $casapariurilorMatches
+            ];
+
+
+        }
+        //dd($returnAllMathcesData);
+
+        return view('football', compact("returnAllMathcesData"));
     }
     //endregion
 
