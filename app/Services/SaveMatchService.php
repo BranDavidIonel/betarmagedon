@@ -45,6 +45,17 @@ class SaveMatchService
             ]);
             return false;
         }
+        $checkExist = DB::table('scraped_matches')
+                            ->where('team1_name', $team1Name)
+                            ->where('team2_name', $team2Name)
+                            ->where('start_time', $formattedStartTime)
+                            ->first();
+        if(!empty($checkExist)) {
+            Log::info("function insertScrapedMatch -> match already exists for $team1Name $team2Name -> date:$formattedStartTime");
+            return false;
+        }
+
+
         try {
             // Insert data directly into the database using DB::table
             return DB::table('scraped_matches')->insert([

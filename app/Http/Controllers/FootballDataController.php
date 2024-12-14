@@ -212,9 +212,8 @@ class FootballDataController extends Controller
                 Log::info("end search for:$keyLigName");
             }
 
-
-
-            return view('football', compact("returnAllMathcesData"));
+            dd($returnAllMathcesData);
+            //return view('football', compact("returnAllMathcesData"));
         } catch (\Exception $e) {
             dd($e);
         }
@@ -223,8 +222,9 @@ class FootballDataController extends Controller
     {
         $scrapedMatches = DB::table("scraped_matches AS sm")
                         ->join("links_search_page AS lsp", "lsp.id", "=", "sm.link_search_page_id")
-                        ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id,
-                                                sm.link_search_page_id, sm.team1_name, sm.team2_name, sm.odds, sm.start_time")
+                        ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id, lsp.link_league as linkLeague,
+                                                sm.link_search_page_id, sm.team1_name as team1Name, sm.team2_name as team2Name,
+                                                sm.odds, sm.start_time as startTime, lsp.updated_at as lastScrapedTime")
                         ->orderBy("start_time", "desc")->get();
         $scrapedMatches = $scrapedMatches->map(function($match) {
             $match->odds = json_decode($match->odds, true);
@@ -251,11 +251,38 @@ class FootballDataController extends Controller
                 'suberbet_matches' => $superbetMatches,
                 'casapariurilor_matches' => $casapariurilorMatches
             ];
+            $searchRezultMatches = [];
+            foreach($betanoMatches as $betanoMatch){
+//                if (is_object($betanoMatch)) {
+//                    $betanoMatch = json_decode(json_encode($betanoMatch), true);
+//                }
+                $betanoMatch = json_decode(json_encode($betanoMatch), true);
 
+                if(!$this->validateMatch($betanoMatch)){
+                    continue;//next match search
+                }
+                $superbetMatches = json_decode(json_encode($superbetMatches), true);
+                $findMatchSuperbet = $this->searchMatch($betanoMatch, $superbetMatches);
+                if(!$this->validateMatch($findMatchSuperbet)){
+                    continue;//next match search
+                }
+                $casapariurilorMatches = json_decode(json_encode($casapariurilorMatches), true);
+                $findMatchCasapariurilor = $this->searchMatch($betanoMatch, $casapariurilorMatches);
+                if(!$this->validateMatch($findMatchCasapariurilor)){
+                    continue;//next match search
+                }
 
+                $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
+                if(!empty($searchProfit)){
+                    $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor],
+                        'profitData' => $searchProfit];
+                }
+            }
+            $searhHasProfit = $this->hasProfitData($searchRezultMatches);
+            $returnAllMathcesData[$nameLeague]['searhHasProfit'] = $searhHasProfit;
+            $returnAllMathcesData[$nameLeague]['detailsProfit'] = $searchRezultMatches;
         }
-        //dd($returnAllMathcesData);
-
+        //return view('football-type-cards', compact("returnAllMathcesData"));
         return view('football', compact("returnAllMathcesData"));
     }
     //endregion
@@ -304,22 +331,22 @@ class FootballDataController extends Controller
 
         $Ateam1name = $matchA['team1Name'];
         $Ateam2name = $matchA['team2Name'];
-        $Abet1 = $matchA['1'];
-        $Abetx = $matchA['x'];
-        $Abet2 = $matchA['2'];
-        $AstartTime = $matchA['startTime'];
-        $AisLive = $matchA['isLive'];
+        $Aodds = $matchA['odds'];
+        $Abet1 = $Aodds['1'];
+        $Abetx = $Aodds['x'];
+        $Abet2 = $Aodds['2'];
+        //$AstartTime = $matchA['startTime'];
 
         if(!$this->validateMatch($matchB)){
             return false;
         }
         $Bteam1name = $matchB['team1Name'];
         $Bteam2name = $matchB['team2Name'];
-        $Bbet1 = $matchB['1'];
-        $Bbetx = $matchB['x'];
-        $Bbet2 = $matchB['2'];
-        $BstartTime = $matchB['startTime'];
-        $BisLive = $matchB['isLive'];
+        $Bodds = $matchB['odds'];
+        $Bbet1 = $Bodds['1'];
+        $Bbetx = $Bodds['x'];
+        $Bbet2 = $Bodds['2'];
+        //$BstartTime = $matchB['startTime'];
 
 
         if(!$this->validateMatch($matchC)){
@@ -328,11 +355,11 @@ class FootballDataController extends Controller
 
         $Cteam1name = $matchC['team1Name'];
         $Cteam2name = $matchC['team2Name'];
-        $Cbet1 = $matchC['1'];
-        $Cbetx = $matchC['x'];
-        $Cbet2 = $matchC['2'];
-        $CstartTime = $matchC['startTime'];
-        $CisLive = $matchC['isLive'];
+        $Codds = $matchA['odds'];
+        $Cbet1 = $Codds['1'];
+        $Cbetx = $Codds['x'];
+        $Cbet2 = $Codds['2'];
+        //$CstartTime = $matchC['startTime'];
 
         $maxBet1 = max($Abet1,$Bbet1,$Cbet1);//best odds if the first team wins
         $maxBetx = max($Abetx,$Bbetx,$Cbetx);//the best odds if it is a draw
@@ -356,18 +383,19 @@ class FootballDataController extends Controller
         }
         $team1name = $match['team1Name'];
         $team2name = $match['team2Name'];
-        $bet1 = $match['1'];
-        $betx = $match['x'];
-        $bet2 = $match['2'];
+        $odds = $match['odds'];
+        $bet1 = $odds['1'];
+        $betx = $odds['x'];
+        $bet2 = $odds['2'];
         $startTime = $match['startTime'];
-        $isLive = $match['isLive'];
+        $isLive = false;
         if(empty($team1name) || empty($team2name) || empty($bet1) || empty($betx) || empty($bet2) || empty($startTime)){
             return false;
         }
         //now I don't want live
-        if(!empty($isLive)){
-            return false;
-        }
+//        if(!empty($isLive)){
+//            return false;
+//        }
 
         return true;
     }
