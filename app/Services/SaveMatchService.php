@@ -29,9 +29,10 @@ class SaveMatchService
 
         $team1Name = $matchData['team1Name'];
         $team2Name = $matchData['team2Name'];
-        $bet1 = $matchData['1'];
-        $betX = $matchData['x'];
-        $bet2 = $matchData['2'];
+        $odds = $matchData['odds'];
+        $bet1 = $odds['1'];
+        $betX = $odds['x'];
+        $bet2 = $odds['2'];
         $odds = [ "1" => $bet1, "x" => $betX, "2" => $bet2];
         $startTime = $matchData['startTime'];
 

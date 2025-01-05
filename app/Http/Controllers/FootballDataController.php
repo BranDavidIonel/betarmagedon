@@ -282,6 +282,7 @@ class FootballDataController extends Controller
             $returnAllMathcesData[$nameLeague]['searhHasProfit'] = $searhHasProfit;
             $returnAllMathcesData[$nameLeague]['detailsProfit'] = $searchRezultMatches;
         }
+        //dd($returnAllMathcesData);
         //return view('football-type-cards', compact("returnAllMathcesData"));
         return view('football', compact("returnAllMathcesData"));
     }
@@ -390,13 +391,9 @@ class FootballDataController extends Controller
         $startTime = $match['startTime'];
         $isLive = false;
         if(empty($team1name) || empty($team2name) || empty($bet1) || empty($betx) || empty($bet2) || empty($startTime)){
+            Log::error("In validateMatch method validation failed details -> ", $match);
             return false;
         }
-        //now I don't want live
-//        if(!empty($isLive)){
-//            return false;
-//        }
-
         return true;
     }
     //endregion
@@ -428,7 +425,14 @@ class FootballDataController extends Controller
             $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
             //dd($matchesDataFromScripts);
             foreach($matchesDataFromScripts as $matchScript){
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
+                $betDetails = [
+                    'team1Name' => '',
+                    'team2Name' => '',
+                    'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                    'startTime' => '',
+                    'isLive' => '',
+                    'urlSearch' => $urlSearchMatches
+                ];
 
                 //don't exist the match
                 if(!isset($matchScript['participants'][0]['name']) || !isset($matchScript['participants'][1]['name'])){
@@ -453,9 +457,9 @@ class FootballDataController extends Controller
                 $detailsBetx = $detailsBetFromScript[1]['price'];
                 $detailsBet2 = $detailsBetFromScript[2]['price'];
 
-                $betDetails['1'] = $detailsBet1;
-                $betDetails['x'] = $detailsBetx;
-                $betDetails['2'] = $detailsBet2;
+                $betDetails['odds']['1'] = $detailsBet1;
+                $betDetails['odds']['x'] = $detailsBetx;
+                $betDetails['odds']['2'] = $detailsBet2;
 
                 $key = "$teamName1-$teamName2";
                 $dataReturn[$key] = $betDetails;
@@ -510,7 +514,14 @@ class FootballDataController extends Controller
 
                     $key = "$teamName1-$teamName2";
 
-                    $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
+                    $betDetails = [
+                        'team1Name' => '',
+                        'team2Name' => '',
+                        'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                        'startTime' => '',
+                        'isLive' => '',
+                        'urlSearch' => $urlSearchMatches
+                    ];
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
 
@@ -528,9 +539,9 @@ class FootballDataController extends Controller
                         $detailsBetx = $detailsBetElements[1]->getText();
                         $detailsBet2 = $detailsBetElements[2]->getText();
 
-                        $betDetails['1'] = $detailsBet1;
-                        $betDetails['x'] = $detailsBetx;
-                        $betDetails['2'] = $detailsBet2;
+                        $betDetails['odds']['1'] = $detailsBet1;
+                        $betDetails['odds']['x'] = $detailsBetx;
+                        $betDetails['odds']['2'] = $detailsBet2;
                     }
                     $superbetMatches[$key] = $betDetails;
                 }
@@ -563,7 +574,14 @@ class FootballDataController extends Controller
             $matches = $driver->findElements(WebDriverBy::className('tablesorter-hasChildRow'));
 
             foreach ($matches as $match) {
-                $betDetails = ['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => ''];
+                $betDetails = [
+                    'team1Name' => '',
+                    'team2Name' => '',
+                    'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                    'startTime' => '',
+                    'isLive' => '',
+                    'urlSearch' => $urlSearchMatches
+                ];
                 try{
                     $teamNamesElement = $match->findElement(WebDriverBy::className('market-name'));
 
@@ -608,9 +626,9 @@ class FootballDataController extends Controller
                     $detailsBetx = $elementBetx->getText();
                     $detailsBet2 = $elementBet2->getText();
 
-                    $betDetails['1'] = $detailsBet1;
-                    $betDetails['x'] = $detailsBetx;
-                    $betDetails['2'] = $detailsBet2;
+                    $betDetails['odds']['1'] = $detailsBet1;
+                    $betDetails['odds']['x'] = $detailsBetx;
+                    $betDetails['odds']['2'] = $detailsBet2;
 
                     $timestamp = intval($dateTimeInMS) / 1000;
                     $dateStartMatch = Carbon::createFromTimestamp($timestamp);
