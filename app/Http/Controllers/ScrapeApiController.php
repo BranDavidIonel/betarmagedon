@@ -42,6 +42,8 @@ class ScrapeApiController extends Controller
             return $this->getError($e, 'betano');
         }
     }
+    //ex check route
+    // http://betarmagedon.test/api/scrape-superbet?url=/pariuri-sportive/fotbal/romania/superliga-playoff/toate?cpi=152&ct=m
     public function scrapeSuperbetMatch(Request $request)
     {
         try {

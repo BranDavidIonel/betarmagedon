@@ -4,7 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 class DateConversionService
 {
-    public static function convertDateROtoCarbon(string $dataTextRo)
+    public static function convertDateROtoCarbon_superbet(string $dataTextRo)
     {
         $traduceriZile = [
             'luni' => 'Monday', 'Luni' => 'Monday',
@@ -33,9 +33,6 @@ class DateConversionService
         // Translate the day of the week and month
         $convertedDate = strtr($dataTextRo, $traduceriZile);
         $convertedDate = strtr($convertedDate, $traduceriLuni);
-
-        // Check if the year is in two-digit format and convert it to four digits
-        $convertedDate = preg_replace('/\b(\d{2})\b/', '20$1', $convertedDate); // Convert '25' to '2025'
 
         // Now parse the date
         try {

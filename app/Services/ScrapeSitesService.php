@@ -5,8 +5,9 @@ namespace App\Services;
 use App\Models\LinksSearchPage;
 use Carbon\Carbon;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverExpectedCondition;
-use Illuminate\Support\Facades\DB;
+use Facebook\WebDriver\WebDriverWait;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -105,11 +106,12 @@ class ScrapeSitesService
             $driver->get($urlSearchMatches);
             $this->configWebDriverService->waitForPageReady($driver);
             //don't work without this ( check is page ready like above)
-            $driver->wait(6)->until(
+            $driver->wait(3)->until(
                 WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
             );
+            $this->closeModalIfExists_superbet($driver);
             //events-by-date , is card with multiples matches group on date
-            $cardDatesElements = $driver->findElements(WebDriverBy::className('events-by-date'));
+            $cardDatesElements = $driver->findElements(WebDriverBy::className('event-by-date'));
             foreach($cardDatesElements as $cardElement){
                 $dateMatchElement = $cardElement->findElement(WebDriverBy::className('events-date'));
                 $dateFormatRo = $dateMatchElement->getText();
@@ -144,16 +146,16 @@ class ScrapeSitesService
                     ];
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
-
+                    $test = $hourMinutesElement->getText();
                     $stringHourMinutes = $hourMinutesElement->getText();
                     $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',')+1);
+                    Log::info("test data -> $stringHourMinutes, $test");
+
                     list($hour, $minutes) = explode(':', trim($stringHourMinutes));
 
-                    $convertedDate = DateConversionService::convertDateROtoCarbon($dateFormatRo);
-                    if(empty($convertedDate)){
-                        continue;
-                    }
-                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(3)->format('d-m-Y H:i');
+                    $convertedDate = DateConversionService::convertDateROtoCarbon_superbet($dateFormatRo);
+
+                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(2)->format('d-m-Y H:i');
                     $betDetails['isLive'] = false;
 
                     $detailsBetElements = $match->findElements(WebDriverBy::className('e2e-odd-current-value'));
@@ -178,6 +180,27 @@ class ScrapeSitesService
             exit;
         } finally {
             $driver->quit();
+        }
+    }
+    private function closeModalIfExists_superbet(RemoteWebDriver $driver)
+    {
+        // XPath to find the close button
+        $xpath = "//button[contains(@class, 'modal-close')]";
+        // Wait up to 5 seconds for the button to appear
+        $wait = new WebDriverWait($driver, 1);
+        try {
+            // Try to find the button
+            $closeButton = $wait->until(
+                WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::xpath($xpath))
+            );
+
+            if ($closeButton) {
+                $closeButton->click();
+                //echo "✅ Close button clicked.\n";
+            }
+        } catch (\Exception $e) {
+            // If the button is not found, do nothing
+            //echo "❌ Close button not found, skipping...\n";
         }
     }
     //endregion
@@ -208,7 +231,7 @@ class ScrapeSitesService
                     'urlSearch' => $urlSearchMatches
                 ];
 
-                $scrollDistance += $scrollDistance / 8; // 8 parts from total scroll down
+                $scrollDistance += $scrollDistance / 10; // 10 parts from total scroll down
                 $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                 sleep(1);
 
@@ -223,14 +246,23 @@ class ScrapeSitesService
 //                $cssSelectorBet1 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(1) > span.odds-button__value";
 //                $cssSelectorBet2 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(2) > span.odds-button__value";
 //                $cssSelectorBet3 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(3) > span.odds-button__value";
-
-                $xpathBet1 = ".//section[1][contains(@class, 'fixture-card__market')]//button[1]//span[contains(@class, 'odds-button__value')]";
-                $xpathBet2 = ".//section[1][contains(@class, 'fixture-card__market')]//button[2]//span[contains(@class, 'odds-button__value')]";
-                $xpathBet3 = ".//section[1][contains(@class, 'fixture-card__market')]//button[3]//span[contains(@class, 'odds-button__value')]";
-                $elementBet1 = $match->findElement(WebDriverBy::xpath($xpathBet1));
-                $elementBetx = $match->findElement(WebDriverBy::xpath($xpathBet2));
-                $elementBet2 = $match->findElement(WebDriverBy::xpath($xpathBet3));
-                $elementDateTime = $match->findElement(WebDriverBy::xpath(".//div/time"));
+                try {
+                    $xpathBet1 = ".//section[1][contains(@class, 'fixture-card__market')]//button[1]//span[contains(@class, 'odds-button__value')]";
+                    $xpathBet2 = ".//section[1][contains(@class, 'fixture-card__market')]//button[2]//span[contains(@class, 'odds-button__value')]";
+                    $xpathBet3 = ".//section[1][contains(@class, 'fixture-card__market')]//button[3]//span[contains(@class, 'odds-button__value')]";
+                    $elementBet1 = $match->findElement(WebDriverBy::xpath($xpathBet1));
+                    $elementBetx = $match->findElement(WebDriverBy::xpath($xpathBet2));
+                    $elementBet2 = $match->findElement(WebDriverBy::xpath($xpathBet3));
+                    $elementDateTime = $match->findElement(WebDriverBy::xpath(".//div/time"));
+                }catch (\Exception $e){
+                    Log::error("Error in casapariorilor to match $key ,other details -> " . $e->getMessage(), [
+                        'exception' => $e,
+                        'xpathBet1' => $xpathBet1,
+                        'xpathBet2' => $xpathBet2,
+                        'xpathBet3' => $xpathBet3,
+                    ]);
+                    continue;
+                }
 
                 if(!empty($elementBet1 && !empty($elementBetx) && !empty($elementBet2) && !empty($elementDateTime))){
                     $detailsBet1 = $elementBet1->getText();
@@ -243,8 +275,6 @@ class ScrapeSitesService
                     $betDetails['odds']['2'] = $detailsBet2;
 
                     $betDetails['startTime'] = DateConversionService::convertDate_CasaPariurilor($dateTime);
-//                    $driver->quit();
-//                    dd($betDetails);
 
                 }else{
                     throw new \Exception("Error: Missing required betting elements or match start time.");
