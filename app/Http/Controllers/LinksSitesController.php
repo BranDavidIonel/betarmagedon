@@ -50,23 +50,21 @@ class LinksSitesController extends Controller
             $driver->get($searchSiteUrl);
             sleep(1);
             $this->configWebDriverService->waitForPageReady($driver);
-            // Identificăm și închidem modalul dacă apare ( get a error about pop up modal)
+            //close pop up modal)
             $this->closeSomePromotionPopUpBetano($driver);
 
-            $buttonFootbal = $driver->findElement(WebDriverBy::xpath("//div[contains(@class, 'sport-picker__item__inline')]/a"));
-            //$buttonFootbal->click();
-            // Navigăm direct către URL-ul obținut
+            $buttonFootbal = $driver->findElement(WebDriverBy::xpath("//div[1]/li/div/div[contains(@class, 'sport-picker__item__inline')]/a"));
+
             $linkFootbal = $buttonFootbal->getAttribute('href');
             $linkFootbal =  $searchSiteUrl .$linkFootbal;
             sleep(1);
-            //$driver->navigate($linkFootbal)->refresh();
             $driver->quit();
             $driver = $this->configWebDriverService->initializeWebDriver();
             $driver->get($linkFootbal);
             $this->configWebDriverService->waitForPageReady($driver);
-            //get a error about pop up modal)
+
             $this->closeSomePromotionPopUpBetano($driver);
-            $svgElements = $driver->findElements(WebDriverBy::xpath("//div/div[2]/div/div/div[@class='tw-flex tw-items-center tw-cursor-pointer']"));
+            $svgElements = $driver->findElements(WebDriverBy::xpath("//div/div/div[2]/div/div/div[contains(@class,'tw-flex tw-items-center tw-cursor-pointer')]"));
 
             //click for collapse matches
             foreach ($svgElements as $index => $svgElement) {
@@ -83,7 +81,7 @@ class LinksSitesController extends Controller
             $currentURL = $driver->getCurrentURL();
             $pageSource = $driver->getPageSource();
 
-            $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class,'content')]/div/div[@class='tw-flex tw-items-center tw-h-l']/a"));
+            $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class,'tw-pt-0 content')]/div//..//a"));
             foreach($linksLeagueElements as $linkElement){
                 $linkleagueUrl = $linkElement->getAttribute('href');
                 // Split the URL by "/"
@@ -114,18 +112,16 @@ class LinksSitesController extends Controller
             $driver->quit();
             dd($e);
         }finally {
-            if (isset($driver)) {
-                $driver->quit();
-            }
+            $driver->quit();
         }
     }
 
     private function closeSomePromotionPopUpBetano($driver){
         try {
-            $modalCloseButton = $driver->findElement(WebDriverBy::cssSelector('.sb-modal__close__btn.uk-modal-close-default.uk-icon.uk-close'));
-            $modalCloseButton->click();
-            sleep(1);
+            $buttonPromotional = $driver->findElement(WebDriverBy::xpath("//div/button[contains(@class, 'modal-close-default')]"));
+            $buttonPromotional->click(); // Click close modal
         } catch (\Exception $e) {
+            // If the button doesn't exist, simply log or handle the situation
             Log::info("Error in closeSomePromotionPopUpBetano:".$e->getMessage(), $e->getTrace());
         }
     }
