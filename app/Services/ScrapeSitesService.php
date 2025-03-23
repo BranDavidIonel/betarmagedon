@@ -155,7 +155,7 @@ class ScrapeSitesService
 
                     $convertedDate = DateConversionService::convertDateROtoCarbon_superbet($dateFormatRo);
 
-                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(2)->format('d-m-Y H:i');
+                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(3)->format('d-m-Y H:i');
                     $betDetails['isLive'] = false;
 
                     $detailsBetElements = $match->findElements(WebDriverBy::className('e2e-odd-current-value'));

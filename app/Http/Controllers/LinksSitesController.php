@@ -143,69 +143,52 @@ class LinksSitesController extends Controller
             $driver->get($searchSiteUrl);
             $this->configWebDriverService->waitForPageReady($driver);
             sleep(2);
-            // Try to click the button identified by the text "Acceptați" cookies accept
-            try {
-                $acceptButton = $driver->findElement(WebDriverBy::xpath("//button[contains(text(), 'Acceptați')]"));
-                $acceptButton->click(); // Click the "Accepta" button
-            } catch (\Exception $e) {
-                // If the button doesn't exist, simply log or handle the situation
-                throw new \Exception("The 'Accepta' button was not found. Proceeding without clicking it.");
-            }
-            sleep(1);
             $logoLink = $driver->findElement(WebDriverBy::cssSelector('.header-logo a'));
             $logoLink->click(); // Click the link
-            sleep(1);
-            $fotbalButton = $driver->findElement(WebDriverBy::xpath("//button[contains(., 'Fotbal')]"));
+            sleep(3);
+            $fotbalButton = $driver->findElement(WebDriverBy::xpath("//div[contains(@class, 'sds-sidebar')]/..//a[1]/div/div[contains(text(), 'Fotbal')]"));
             $fotbalButton->click();
-            sleep(1);
+            sleep(2);
+            //close some modal
+            $buttonModal = $driver->findElement(WebDriverBy::xpath("//button[contains(@class, 'modal-close')]"));
+            $buttonModal->click(); //close modal
             try {
-                $competitiButton = $driver->findElement(WebDriverBy::xpath("//button[span[contains(text(), 'Competiții')]]"));
+                $competitiButton = $driver->findElement(WebDriverBy::xpath("//button[div[contains(text(), 'Competiții')]]"));
                 $competitiButton->click(); // Click the "Competiti" tab
             } catch (\Exception $e) {
                 throw new \Exception("The 'Competiti' tab button was not found. Proceeding without clicking it.");
             }
             sleep(1);
             //toggle icons buttons
-            $iconsCountryButtonsElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class, 'toggle-icon-container')]/i"));
+            $iconsCountryButtonsElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class, 'competition-category')]/div/i"));
             $countCountryButtonsElements = count($iconsCountryButtonsElements);
             $iterationDivCountryElement = 1;
-            //$countCountryButtonsElements = 3;//debug
-            //$previewNrLeague = 0;
             while($iterationDivCountryElement <= $countCountryButtonsElements){
-                $countryNameElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div[@class='competition-category']//span[contains(@class, 'category-name')]"));
+                sleep(1);
+                $countryNameElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div[contains(@class,'competition-category')]//span[contains(@class, 'category-name')]"));
                 $countryName = $countryNameElement->getText();
                 $countryName = strtolower($countryName);
 
-                $iconCountryButtonElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div/div[contains(@class, 'toggle-icon-container')]/i"));
+                $iconCountryButtonElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div[contains(@class, 'competition-category')]/div/i"));
                 $iconCountryButtonElement->click();
-                //$this->configWebDriverService->scrollDownCustom($driver, ceil($iterationDivCountryElement -1 / 2), 100);
                 sleep(1);
 
-                $iconsLeagueButtonsElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class, 'tournament') and contains(@class, 'e2e-competition-tournament')]/div/i"));
+                $iconsLeagueButtonsElements = $driver->findElements(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div/main/a[contains(@class, 'tournament') and contains(@class, 'e2e-competition-tournament')]"));
                 $countLeagueButtonsElements = count($iconsLeagueButtonsElements);
                 $iterationDivLeagueElementElement = 1;
                 while($iterationDivLeagueElementElement <= $countLeagueButtonsElements){
-                    $leagueNameElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div/main/div[$iterationDivLeagueElementElement][contains(@class,'tournament')]//div[@class='tournament-name']"));
-                    $leagueName = $leagueNameElement->getText();
-                    $leagueName = strtolower($leagueName);
+                    $leagueLinkElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div/main/a[$iterationDivLeagueElementElement][contains(@class,'tournament')]"));
+                    $linkLeagueUrl = $leagueLinkElement->getAttribute('href');
 
-                    $iconsLeagueButtonsElements = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivLeagueElementElement][contains(@class, 'tournament') and contains(@class, 'e2e-competition-tournament')]/div/i"));
-                    $iconsLeagueButtonsElements->click();
-                    $linkLeagueUrl = $driver->getCurrentURL();
-                    $driver->navigate()->back();
-                    sleep(1);
+                    $leagueNameElement = $leagueLinkElement->findElement(WebDriverBy::xpath(".//div[@class='tournament-name']"));
+                    $leagueName = strtolower($leagueNameElement->getText());
+
                     $iterationDivLeagueElementElement++;
                     $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $searchSiteUrl.$linkLeagueUrl, 'countryName' => $countryName];
-                    if($iterationDivLeagueElementElement <= $countLeagueButtonsElements) {
-                        $iconCountryButtonElement = $driver->findElement(WebDriverBy::xpath("//div[$iterationDivCountryElement]/div/div[contains(@class, 'toggle-icon-container')]/i"));
-                        $iconCountryButtonElement->click();
-                    }
-                }
 
+                }
                 $iterationDivCountryElement++;
             }
-
-            sleep(2);
 
             //insert data
             foreach($allFootBallLinks as $dataLink){
