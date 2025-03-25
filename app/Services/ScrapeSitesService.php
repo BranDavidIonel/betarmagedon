@@ -216,10 +216,13 @@ class ScrapeSitesService
             // Call the function to handle cookie consent
             AccepCookiesButtonService::acceptCookiesCasaPariurilor($driver);
             sleep(2);
+            //select all from football
+            $tabAll = $driver->findElement(WebDriverBy::xpath("//button[contains(text(), ' TOT')]"));
+            $tabAll->click();
+            sleep(2);
             $scrollHeight1 = $driver->executeScript('return document.body.scrollHeight;') /5;
             $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
-            sleep(1);
             $scrollDistance = $scrollHeight1;
             foreach ($matches as $match) {
                 $betDetails = [
