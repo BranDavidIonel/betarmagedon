@@ -149,8 +149,6 @@ class ScrapeSitesService
                     $test = $hourMinutesElement->getText();
                     $stringHourMinutes = $hourMinutesElement->getText();
                     $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',')+1);
-                    Log::info("test data -> $stringHourMinutes, $test");
-
                     list($hour, $minutes) = explode(':', trim($stringHourMinutes));
 
                     $convertedDate = DateConversionService::convertDateROtoCarbon_superbet($dateFormatRo);
