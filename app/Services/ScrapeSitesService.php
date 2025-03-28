@@ -283,10 +283,15 @@ class ScrapeSitesService
                 $casaPariurilorMatches[$key] = $betDetails;
             }
         }catch (\Exception $e) {
-            Log::error('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
+            //Log::error('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
             echo "A apărut o eroare superbet functia cautare scrapeCasaPariurilorWithClassNameMethod:" . $e->getMessage().' linia:'.$e->getLine();
             $driver->quit();
-            exit;
+            //throw new \Exception('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
+            $errorMessage = "A apărut o eroare în scrapeCasaPariurilorWithClassNameMethod: " .
+                $e->getMessage() . ' linia:' . $e->getLine();
+
+            throw new \Exception($errorMessage, $e->getCode());
+            //exit;
         }finally {
             $driver->quit();
         }

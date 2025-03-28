@@ -14,3 +14,6 @@ Route::get('/scraped-live', [FootballDataController::class, 'fetchData']);
 
 Route::get('/api-tests', [ApiTestsController::class, 'apiTests'])->name('api-tests');
 Route::get('/api-tests/betano', [ApiTestsController::class, 'showBetanoData'])->name('api-tests-betano');
+Route::get('/api-tests/superbet', [ApiTestsController::class, 'showSuperbetData'])->name('api-tests-superbet');
+Route::get('/api-tests/casapariurilor', [ApiTestsController::class, 'showCasapariurilorData'])->name('api-tests-casapariurilor');
+

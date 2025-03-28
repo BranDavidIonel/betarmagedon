@@ -15,17 +15,20 @@
         <tr>
             <td>
                 <a href="{{ route('api-tests-betano') }}" class="btn btn-primary">
-                    Betano Test Ro -> Ligue 1 <span class="badge bg-danger ms-2">Get Live data</span>
+                    Betano Test Ro -> Ligue 1 <span class="badge bg-danger ms-2">/api/scrape-betano</span>
                 </a>
-{{--                <a href="{{ route('api-tests-betano') }}" class="btn btn-primary mt-2">--}}
-{{--                    Superbet Test Ligue 1 <span class="badge bg-danger ms-2">Get Live data</span>--}}
-{{--                </a>--}}
+                <a href="{{ route('api-tests-superbet') }}" class="btn btn-primary mt-2">
+                    Superbet Test Ro -> Ligue 1 <span class="badge bg-danger ms-2">/api/scrape-superbet</span>
+                </a>
+                <a href="{{ route('api-tests-casapariurilor') }}" class="btn btn-primary mt-2">
+                    Casapariurilor Test Ro -> Ligue 1 <span class="badge bg-danger ms-2">/api/scrape-casapariurilor</span>
+                </a>
             </td>
             <td>
-                <pre class="text-left">{{ json_encode($betanoData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                <pre class="text-left">{{ json_encode($scrapedData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
             </td>
             <td>
-                <pre class="text-left">{{ $betanoJson }}</pre>
+                <pre class="text-left">{{ $apiStructureJson }}</pre>
             </td>
         </tr>
         </tbody>
