@@ -151,7 +151,14 @@ class FootballDataController extends Controller
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
-        $returnAllMathcesData = ['league_name' => ['betano_matches' => [], 'suberbet_matches' => [], 'casapariurilor_matches' => []]];
+        $returnAllMathcesData = [
+            'league_name' =>
+                ['betano_matches' => [],
+                    'suberbet_matches' => [],
+                    'casapariurilor_matches' => []
+                ],
+            'searchRezultMatches' => []
+        ];
         $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
@@ -198,6 +205,7 @@ class FootballDataController extends Controller
                     if(!$this->validateMatch($findMatchCasapariurilor)){
                         continue;//next match search
                     }
+
                     $this->saveMatchService->insertScrapedMatch($urlBetano, $betanoMatch, 'betano_matches' );
                     $this->saveMatchService->insertScrapedMatch($urlSuperbet, $findMatchSuperbet, 'suberbet_matches' );
                     $this->saveMatchService->insertScrapedMatch($urlCasapariurilor, $findMatchCasapariurilor, 'casapariurilor_matches' );
@@ -208,6 +216,9 @@ class FootballDataController extends Controller
                                                 'resultData' => $searchProfit];
                     }
                 }
+
+                $returnAllMathcesData['searchRezultMatches'] = $searchRezultMatches;
+
                 $searhHasProfit = $this->hasProfitData($searchRezultMatches);
 
                 if(empty($searhHasProfit)){
@@ -219,9 +230,9 @@ class FootballDataController extends Controller
                 Log::info('Rezult matches details:', $searchRezultMatches);
                 Log::info("end search for:$keyLigName");
             }
-            return $returnAllMathcesData;
-            //dd($returnAllMathcesData);
-            //return view('football', compact("returnAllMathcesData"));
+            //return $returnAllMathcesData;
+
+            return view('scraped-data', compact("returnAllMathcesData"));
         } catch (\Exception $e) {
             dd($e);
         }
@@ -310,21 +321,27 @@ class FootballDataController extends Controller
         return false;
     }
     private function searchMatch($matchFind,$matchesSearch){
-        $dateFind = $matchFind['startTime'];
+        $dateTimeFind = $matchFind['startTime'];
+        //I have some bug about time in casapariurilor site( is search without time from date)
+        $dateTimeFindArray = explode(" ", $dateTimeFind);
+        $onlyDateFind = isset($dateTimeFindArray[0]) ? $dateTimeFindArray[0] : null;
+
         $team1NameFind = $matchFind['team1Name'];
         $team2NameFind = $matchFind['team2Name'];
 
 
         foreach($matchesSearch as $matchSearch){
-            $dateSearch = $matchSearch['startTime'];
+            $dateTimeSearch = $matchSearch['startTime'];
+            $dateTimeSearchArray = explode(" ", $dateTimeSearch);
+            $onlyDateSearch = isset($dateTimeSearchArray[0]) ? $dateTimeSearchArray[0] : null;
+
             $team1NameSearch = $matchSearch['team1Name'];
             $team2NameSearch = $matchSearch['team2Name'];
 
             $percentFindTeam1 = calculateSimilarityStringsPercentage($team1NameFind, $team1NameSearch);
             $percentFindTeam2 = calculateSimilarityStringsPercentage($team2NameFind, $team2NameSearch);
 
-
-            if($dateSearch == $dateFind && ($percentFindTeam1 > 60 && $percentFindTeam2 > 60)){
+            if($onlyDateSearch == $onlyDateFind && ($percentFindTeam1 > 60 && $percentFindTeam2 > 60)){
                 return $matchSearch;
             }
         }

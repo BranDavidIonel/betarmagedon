@@ -33,6 +33,11 @@ class DateConversionService
         // Translate the day of the week and month
         $convertedDate = strtr($dataTextRo, $traduceriZile);
         $convertedDate = strtr($convertedDate, $traduceriLuni);
+        // Handle year format correction if necessary
+        // If year has 2 digits, prefix with "20"
+        $convertedDate = preg_replace_callback('/(\d{2})\s*$/', function ($matches) {
+            return '20' . $matches[1];
+        }, $convertedDate);
 
         // Now parse the date
         try {
@@ -43,10 +48,6 @@ class DateConversionService
             echo "Converted Date: " . $convertedDate;
             return null; // Return null or handle as needed
         }
-
-//        $convertedDate = strtr($dataTextRo, $traduceriZile);
-//        $convertedDate = strtr($convertedDate, $traduceriLuni);
-//        $dataCarbon = Carbon::createFromFormat('l, d F y', $convertedDate);
        return $dataCarbon;
     }
     public static function convertDate_CasaPariurilor(string $dateTime)
@@ -56,8 +57,8 @@ class DateConversionService
             // Case 1: "today HH:MM"
             if (str_starts_with($dateTime, 'azi ')) {
                 $time = trim(substr($dateTime, 4)); // Extract time after "azi "
-                // Adjust the time by 2 hours ahead
-                $adjustedTime = Carbon::parse($time)->addHours(2);
+                // Adjust the time by 3 hours ahead
+                $adjustedTime = Carbon::parse($time)->addHours(3);
 
                 return Carbon::today('Europe/Bucharest')->setTimeFromTimeString($adjustedTime->format('H:i'))->format('d-m-Y H:i');
             }

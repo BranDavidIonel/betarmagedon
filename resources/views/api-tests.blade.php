@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Selenium Page')
+@section('title', 'API tests endpoint')
 
 @section('content')
     <table class="table table-bordered text-left"> {{-- Align text to the left --}}

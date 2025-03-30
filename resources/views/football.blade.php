@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Selenium Page')
+@section('title', 'Old scraped data')
 
 @section('content')
 {{--    <div style="text-align: center; margin-bottom: 20px;">--}}

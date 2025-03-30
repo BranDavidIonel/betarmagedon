@@ -10,7 +10,7 @@ Route::get('/get-links/superbet', [LinksSitesController::class, 'getLinksForSupe
 Route::get('/get-links/casa_pariurilor', [LinksSitesController::class, 'getLinksForCasaPariurilor']);
 Route::get('/', [FootballDataController::class, 'searchMatchesDataFromDB']);
 Route::get('/scraped', [FootballDataController::class, 'searchMatchesDataFromDB']);
-Route::get('/scraped-live', [FootballDataController::class, 'fetchData']);
+Route::get('/scraped-live', [FootballDataController::class, 'fetchData'])->name("scraped-live");
 
 Route::get('/api-tests', [ApiTestsController::class, 'apiTests'])->name('api-tests');
 Route::get('/api-tests/betano', [ApiTestsController::class, 'showBetanoData'])->name('api-tests-betano');
