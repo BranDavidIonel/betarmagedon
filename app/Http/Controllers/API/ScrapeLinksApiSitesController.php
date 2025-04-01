@@ -1,27 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
-
-use Facebook\WebDriver\Remote\RemoteWebDriver;
-use Facebook\WebDriver\Remote\DesiredCapabilities;
-use Facebook\WebDriver\Firefox\FirefoxOptions;
-use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverWait;
-use Laravel\Dusk\Browser;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-//my class
+use App\Http\Controllers\Controller;
 use App\Models\SitesSearch;
-use App\Services\DateConversionService;
-use App\Services\SaveLinkService;
-use App\Services\ConfigWebDriverService;
 use App\Services\AccepCookiesButtonService;
 use App\Services\CheckDataService;
+use App\Services\ConfigWebDriverService;
+use App\Services\SaveLinkService;
+use Facebook\WebDriver\WebDriverBy;
+use Illuminate\Support\Facades\Log;
 
-class LinksSitesController extends Controller
+//my class
+
+class ScrapeLinksApiSitesController extends Controller
 {
     //region index main data
     private SaveLinkService $saveLinkService;
@@ -83,9 +75,9 @@ class LinksSitesController extends Controller
 
             $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class,'tw-pt-0 content')]/div//..//a"));
             foreach($linksLeagueElements as $linkElement){
-                $linkleagueUrl = $linkElement->getAttribute('href');
+                $linkLeagueUrl = $linkElement->getAttribute('href');
                 // Split the URL by "/"
-                $parts = explode('/', $linkleagueUrl);
+                $parts = explode('/', $linkLeagueUrl);
                 // Get the 4th part which is the league name , 3 -> country name
                 $leagueName = $parts[4];
                 $leagueName = trim(str_replace('-', ' ', $leagueName));
@@ -94,8 +86,9 @@ class LinksSitesController extends Controller
                 if(!$this->checkDataService->checkCountryExist($countryName)){
                     $countryName = null;
                 }
-
-                $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $searchSiteUrl.$linkleagueUrl, 'countryName' => $countryName];
+                //have "\" I want to remove
+                //$linkLeagueUrl = str_replace('\\/', '/', $linkLeagueUrl);
+                $allFootBallLinks[] = [ 'leagueName' => $leagueName , 'link' => $searchSiteUrl.$linkLeagueUrl, 'countryName' => $countryName];
             }
 
             $driver->quit();
@@ -107,7 +100,11 @@ class LinksSitesController extends Controller
                 //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
                 //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
-            dd($allFootBallLinks);
+            // Return the results as JSON
+            return response()->json([
+                'success' => true,
+                'data' => $allFootBallLinks,
+            ], 200, [], JSON_UNESCAPED_SLASHES);
         }catch (\Exception $e) {
             $driver->quit();
             dd($e);
@@ -142,7 +139,7 @@ class LinksSitesController extends Controller
         try {
             $driver->get($searchSiteUrl);
             $this->configWebDriverService->waitForPageReady($driver);
-            sleep(2);
+            sleep(3);
             $logoLink = $driver->findElement(WebDriverBy::cssSelector('.header-logo a'));
             $logoLink->click(); // Click the link
             sleep(3);
@@ -199,7 +196,10 @@ class LinksSitesController extends Controller
                 $this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
             }
             $driver->quit();
-            dd($allFootBallLinks);
+            return response()->json([
+                'success' => true,
+                'data' => $allFootBallLinks,
+            ], 200, [], JSON_UNESCAPED_SLASHES);
 
         }catch (\Exception $e) {
             $driver->quit();
@@ -267,7 +267,10 @@ class LinksSitesController extends Controller
 //                //$this->saveLinkService->createScrapedCompetition($idSite, $leagueName, $countryName);
 //                //$this->saveLinkService->insertLinkIfNotExists($idSite,'football',$link, $leagueName, $countryName) ;
 //            }
-            dd($allFootBallLinks);
+            return response()->json([
+                'success' => true,
+                'data' => $allFootBallLinks,
+            ], 200, [], JSON_UNESCAPED_SLASHES);
         }catch (\Exception $e) {
             $driver->quit();
             dd($e);

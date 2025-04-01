@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
-
+use App\Http\Controllers\Controller;
 use App\Services\ScrapeSitesService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ScrapeApiController extends Controller
+class ScrapeMatchesApiController extends Controller
 {
     const BASE_DOMAIN_URL_BETANO = 'https://ro.betano.com';
     const BASE_DOMAIN_URL_SUPERBET = 'https://superbet.ro';
