@@ -33,8 +33,8 @@ class FootballDataController extends Controller
     private array $dataUrlSearch = [
         'ro_liga1' => [
             "betano_url" => "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/",
-            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/superliga-playoff/toate?cpi=152&ct=m",
-            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-3/romania-1?filter=all&tab=matches"
+            "superbet_url" => "https://superbet.ro/pariuri-sportive/fotbal/romania/superliga-playoff/toate",
+            "casapariurilor_url" => "https://www.casapariurilor.ro/pariuri-online/fotbal/romania-3/romania-1?tab=matches&filter=all"
         ],
         /*
         "germania_bundesliga" =>[
@@ -243,7 +243,7 @@ class FootballDataController extends Controller
                         ->join("links_search_page AS lsp", "lsp.id", "=", "sm.link_search_page_id")
                         ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id, lsp.link_league as linkLeague,
                                                 sm.link_search_page_id, sm.team1_name as team1Name, sm.team2_name as team2Name,
-                                                sm.odds, sm.start_time as startTime, lsp.updated_at as lastScrapedTime")
+                                                sm.odds, sm.start_time as startTime, sm.updated_at as lastScrapedTime")
                         ->orderBy("start_time", "desc")->get();
         $scrapedMatches = $scrapedMatches->map(function($match) {
             $match->odds = json_decode($match->odds, true);
