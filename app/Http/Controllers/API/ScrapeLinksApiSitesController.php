@@ -9,6 +9,7 @@ use App\Services\CheckDataService;
 use App\Services\ConfigWebDriverService;
 use App\Services\SaveLinkService;
 use Facebook\WebDriver\WebDriverBy;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 //my class
@@ -34,48 +35,37 @@ class ScrapeLinksApiSitesController extends Controller
             return false;
         }
         $searchSiteUrl = $detailsSite->link_home_page;
-        $idSite = $detailsSite->id;
         $driver = $this->configWebDriverService->initializeWebDriver();
-
         $allFootBallLinks = [];
         try {
-            $driver->get($searchSiteUrl);
-            sleep(1);
+            $testSearch = $searchSiteUrl."/sport/fotbal/";
+            $driver->get($testSearch);
             $this->configWebDriverService->waitForPageReady($driver);
-            //close pop up modal)
-            $this->closeSomePromotionPopUpBetano($driver);
-
-            $buttonFootbal = $driver->findElement(WebDriverBy::xpath("//div[1]/li/div/div[contains(@class, 'sport-picker__item__inline')]/a"));
-
-            $linkFootbal = $buttonFootbal->getAttribute('href');
-            $linkFootbal =  $searchSiteUrl .$linkFootbal;
-            sleep(1);
+            sleep(2);
+            $pageSource = $driver->getPageSource();
+            //find a script with all data about links
+            $pattern = '/window\["initial_state"\]\s*=\s*(.*?)\s*}<\/script>/s';
+            preg_match($pattern, $pageSource, $matches);
+            $scriptContent = [];
+            if (isset($matches[1])) {
+                $initialStateJson = $matches[1]."}";
+                $scriptContent = json_decode($initialStateJson, true);
+            }
             $driver->quit();
-            $driver = $this->configWebDriverService->initializeWebDriver();
-            $driver->get($linkFootbal);
-            $this->configWebDriverService->waitForPageReady($driver);
+            $linksLeagues = [];
+            $regionGroupsData = Arr::get($scriptContent,'data.regionGroups',[]);
+            foreach ($regionGroupsData as $regionGroupData) {
+                $countryData = Arr::get($regionGroupData, "regions", []);
+                foreach ($countryData as $country) {
 
-            $this->closeSomePromotionPopUpBetano($driver);
-            $svgElements = $driver->findElements(WebDriverBy::xpath("//div/div/div[2]/div/div/div[contains(@class,'tw-flex tw-items-center tw-cursor-pointer')]"));
-
-            //click for collapse matches
-            foreach ($svgElements as $index => $svgElement) {
-                if($index == 0){
-                    continue;//first is enabled ( if i clicked become disabled)
-                }
-                try {
-                    $svgElement->click();
-                } catch (\Exception $e) {
-                    echo "Failed to click on SVG element $index: " . $e->getMessage() . "\n";
+                    $leagues = Arr::get($country, "leagues", []);
+                    foreach ($leagues as $league) {
+                        $linkLeagueFromScript = Arr::get($league, "url");
+                        $linksLeagues[] = $linkLeagueFromScript;
+                    }
                 }
             }
-            sleep(1);
-            $currentURL = $driver->getCurrentURL();
-            $pageSource = $driver->getPageSource();
-
-            $linksLeagueElements = $driver->findElements(WebDriverBy::xpath("//div[contains(@class,'tw-pt-0 content')]/div//..//a"));
-            foreach($linksLeagueElements as $linkElement){
-                $linkLeagueUrl = $linkElement->getAttribute('href');
+            foreach($linksLeagues as $linkLeagueUrl){
                 // Split the URL by "/"
                 $parts = explode('/', $linkLeagueUrl);
                 // Get the 4th part which is the league name , 3 -> country name
@@ -113,15 +103,6 @@ class ScrapeLinksApiSitesController extends Controller
         }
     }
 
-    private function closeSomePromotionPopUpBetano($driver){
-        try {
-            $buttonPromotional = $driver->findElement(WebDriverBy::xpath("//div/button[contains(@class, 'modal-close-default')]"));
-            $buttonPromotional->click(); // Click close modal
-        } catch (\Exception $e) {
-            // If the button doesn't exist, simply log or handle the situation
-            Log::info("Error in closeSomePromotionPopUpBetano:".$e->getMessage(), $e->getTrace());
-        }
-    }
     //endregion
     //region superbet
     //get data from 'competitii tab'
