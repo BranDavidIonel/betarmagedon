@@ -23,7 +23,7 @@ class ConfigWebDriverService
         $firefoxOptions = new FirefoxOptions();
         // Define the browser arguments
         $argumentsBrowser = [
-            '--disable-gpu', // Avoid GPU issues
+            //'--disable-gpu', // Avoid GPU issues
             '--no-sandbox',  // Required for containerized environments
             '--disable-dev-shm-usage', // Avoid shared memory issues
             '--window-size=1920x1080', // Set window size for better visualization

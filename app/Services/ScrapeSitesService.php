@@ -215,13 +215,17 @@ class ScrapeSitesService
             AccepCookiesButtonService::acceptCookiesCasaPariurilor($driver);
             sleep(2);
             //select all from football
-            $tabAll = $driver->findElement(WebDriverBy::xpath("//button[contains(text(), ' TOT')]"));
-            $tabAll->click();
-            sleep(2);
+
             $scrollHeight1 = $driver->executeScript('return document.body.scrollHeight;') /5;
             $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
+            $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
+            sleep(3);
+            //  $tabAll = $driver->findElement(WebDriverBy::xpath("//button[contains(normalize-space(.), 'TOT')]"));
+            // $tabAll->click();
+            
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
             $scrollDistance = $scrollHeight1;
+            
             foreach ($matches as $match) {
                 $betDetails = [
                     'team1Name' => '',
@@ -236,25 +240,22 @@ class ScrapeSitesService
                 $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                 sleep(1);
 
-                $teamNamesElements = $match->findElements(WebDriverBy::className('fixture-card__participant-name'));
-                $teamName1 = $teamNamesElements[0]->getText();
-                $teamName2 = $teamNamesElements[1]->getText();
+                $team1NameElement = $match->findElement(WebDriverBy::xpath("(//div[contains(@class,'fixture-card__participant')]//div)[1]"));
+                $teamName1 = $team1NameElement->getText();
+                $team2NameElement = $match->findElement(WebDriverBy::xpath("(//div[contains(@class,'fixture-card__participant')]//div)[2]"));
+                $teamName2 = $team2NameElement->getText();
 
                 $key = "$teamName1-$teamName2";
                 $betDetails['team1Name'] = $teamName1;
                 $betDetails['team2Name'] = $teamName2;
-                //with css method
-//                $cssSelectorBet1 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(1) > span.odds-button__value";
-//                $cssSelectorBet2 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(2) > span.odds-button__value";
-//                $cssSelectorBet3 = "section.fixture-card__market > div.fixture-card__market-outcomes > button:nth-child(3) > span.odds-button__value";
                 try {
-                    $xpathBet1 = ".//section[1][contains(@class, 'fixture-card__market')]//button[1]//span[contains(@class, 'odds-button__value')]";
-                    $xpathBet2 = ".//section[1][contains(@class, 'fixture-card__market')]//button[2]//span[contains(@class, 'odds-button__value')]";
-                    $xpathBet3 = ".//section[1][contains(@class, 'fixture-card__market')]//button[3]//span[contains(@class, 'odds-button__value')]";
+                    $xpathBet1 = "//section[1]//div[1]/div[contains(@class,'odds-button2__value')][1]";
+                    $xpathBet2 = "//section[1]//div[2]/div[contains(@class,'odds-button2__value')][1]";
+                    $xpathBet3 = "//section[1]//div[3]/div[contains(@class,'odds-button2__value')][1]";
                     $elementBet1 = $match->findElement(WebDriverBy::xpath($xpathBet1));
                     $elementBetx = $match->findElement(WebDriverBy::xpath($xpathBet2));
                     $elementBet2 = $match->findElement(WebDriverBy::xpath($xpathBet3));
-                    $elementDateTime = $match->findElement(WebDriverBy::xpath(".//div/time"));
+                    //$elementDateTime = $match->findElement(WebDriverBy::xpath(".//div/time"));
                 }catch (\Exception $e){
                     Log::error("Error in casapariorilor to match $key ,other details -> " . $e->getMessage(), [
                         'exception' => $e,
@@ -265,17 +266,17 @@ class ScrapeSitesService
                     continue;
                 }
 
-                if(!empty($elementBet1 && !empty($elementBetx) && !empty($elementBet2) && !empty($elementDateTime))){
+                if(!empty($elementBet1) && !empty($elem▶entBetx) && !empty($elementBet2) /*&& !empty($elementDateTime)*/){
                     $detailsBet1 = $elementBet1->getText();
                     $detailsBetx = $elementBetx->getText();
                     $detailsBet2 = $elementBet2->getText();
-                    $dateTime = $elementDateTime->getText();
+                    //$dateTime = $elementDateTime->getText();
 
                     $betDetails['odds']['1'] = $detailsBet1;
                     $betDetails['odds']['x'] = $detailsBetx;
                     $betDetails['odds']['2'] = $detailsBet2;
 
-                    $betDetails['startTime'] = DateConversionService::convertDate_CasaPariurilor($dateTime);
+                    //$betDetails['startTime'] = DateConversionService::convertDate_CasaPariurilor($dateTime);
 
                 }else{
                     throw new \Exception("Error: Missing required betting elements or match start time.");
@@ -295,6 +296,8 @@ class ScrapeSitesService
         }finally {
             $driver->quit();
         }
+        //dd($casaPariurilorMatches);
+        
         return $casaPariurilorMatches;
     }
 
