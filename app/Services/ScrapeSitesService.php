@@ -2,23 +2,23 @@
 
 namespace App\Services;
 
-use App\Models\LinksSearchPage;
 use Carbon\Carbon;
-use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class ScrapeSitesService
 {
     //region init
     private $configWebDriverService;
+
     public function __construct(ConfigWebDriverService $configWebDriverService)
     {
         $this->configWebDriverService = $configWebDriverService;
     }
+
     //endregion
     //region betano
     // e.g., "https://ro.betano.com/sport/fotbal/romania/liga-1/17088/"
@@ -39,30 +39,30 @@ class ScrapeSitesService
             preg_match($pattern, $pageSource, $matches);
             $scriptContent = [];
             if (isset($matches[1])) {
-                $initialStateJson = $matches[1]."}";
+                $initialStateJson = $matches[1].'}';
                 $scriptContent = json_decode($initialStateJson, true);
             }
 
             $driver->quit();
 
             $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
-            foreach($matchesDataFromScripts as $matchScript){
+            foreach ($matchesDataFromScripts as $matchScript) {
                 $betDetails = [
                     'team1Name' => '',
                     'team2Name' => '',
-                    'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                    'odds' => ['1' => '', 'x' => '', '2' => ''],
                     'startTime' => '',
                     'isLive' => '',
-                    'urlSearch' => $urlSearchMatches
+                    'urlSearch' => $urlSearchMatches,
                 ];
 
                 //don't exist the match
-                if(!isset($matchScript['participants'][0]['name']) || !isset($matchScript['participants'][1]['name'])){
+                if (! isset($matchScript['participants'][0]['name']) || ! isset($matchScript['participants'][1]['name'])) {
                     continue;
                 }
                 $teamName1 = $matchScript['participants'][0]['name'];
                 $teamName2 = $matchScript['participants'][1]['name'];
-                $timestamp = $matchScript['startTime']/1000;
+                $timestamp = $matchScript['startTime'] / 1000;
 
                 $betDetails['team1Name'] = $teamName1;
                 $betDetails['team2Name'] = $teamName2;
@@ -71,8 +71,8 @@ class ScrapeSitesService
                 $betDetails['startTime'] = $dateStartMatch->addHours(3)->format('d-m-Y H:i');
                 $betDetails['isLive'] = isset($matchScript['liveNow']) ? true : false;
                 $detailsBetFromScript = $matchScript['markets'][0]['selections'];
-                if(empty($detailsBetFromScript)){
-                    continue;//I need details about 1 | x | 2 teams
+                if (empty($detailsBetFromScript)) {
+                    continue; //I need details about 1 | x | 2 teams
                 }
 
                 $detailsBet1 = $detailsBetFromScript[0]['price'];
@@ -87,19 +87,22 @@ class ScrapeSitesService
                 $dataReturn[$key] = $betDetails;
             }
 
-        }catch (\Exception $e) {
-            Log::error('eroare scrapeBetanoWithScriptMethod',$e->getTrace());
-            echo "A apărut o eroare scrapeBetanoWithScriptMethod: " . $e->getMessage(). "linia: ".$e->getLine();
+        } catch (\Exception $e) {
+            Log::error('eroare scrapeBetanoWithScriptMethod', $e->getTrace());
+            echo 'A apărut o eroare scrapeBetanoWithScriptMethod: '.$e->getMessage().'linia: '.$e->getLine();
             $driver->quit();
             exit;
-        }finally {
+        } finally {
             $driver->quit();
         }
+
         return $dataReturn;
     }
+
     //endregion
     //region superbet
-    public function scrapeSuperbetWithClassNameMethod($urlSearchMatches){
+    public function scrapeSuperbetWithClassNameMethod($urlSearchMatches)
+    {
         $driver = $this->configWebDriverService->initializeWebDriver();
         $superbetMatches = [];
         try {
@@ -112,20 +115,20 @@ class ScrapeSitesService
             $this->closeModalIfExists_superbet($driver);
             //events-by-date , is card with multiples matches group on date
             $cardDatesElements = $driver->findElements(WebDriverBy::className('event-by-date'));
-            foreach($cardDatesElements as $cardElement){
+            foreach ($cardDatesElements as $cardElement) {
                 $dateMatchElement = $cardElement->findElement(WebDriverBy::className('events-date'));
                 $dateFormatRo = $dateMatchElement->getText();
                 $matches = $cardElement->findElements(WebDriverBy::className('single-event'));
 
                 foreach ($matches as $match) {
-                    try{
+                    try {
                         $teamsElements = $match->findElements(WebDriverBy::className('event-competitor__name'));
                         //capitalize -> hour and minutes get string
                         $hourMinutesElement = $match->findElement(WebDriverBy::className('capitalize'));
-                    }catch(\Exception $e){
+                    } catch (\Exception $e) {
                         //for live matches i have this error
-//                        Log::error("eroare superbet");
-//                        Log::error($e->getMessage());
+                        //                        Log::error("eroare superbet");
+                        //                        Log::error($e->getMessage());
                         continue; //next match
                     }
                     $teamName1Element = $teamsElements[0];
@@ -139,17 +142,17 @@ class ScrapeSitesService
                     $betDetails = [
                         'team1Name' => '',
                         'team2Name' => '',
-                        'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                        'odds' => ['1' => '', 'x' => '', '2' => ''],
                         'startTime' => '',
                         'isLive' => '',
-                        'urlSearch' => $urlSearchMatches
+                        'urlSearch' => $urlSearchMatches,
                     ];
                     $betDetails['team1Name'] = $teamName1;
                     $betDetails['team2Name'] = $teamName2;
                     $test = $hourMinutesElement->getText();
                     $stringHourMinutes = $hourMinutesElement->getText();
-                    $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',')+1);
-                    list($hour, $minutes) = explode(':', trim($stringHourMinutes));
+                    $stringHourMinutes = substr($stringHourMinutes, strpos($stringHourMinutes, ',') + 1);
+                    [$hour, $minutes] = explode(':', trim($stringHourMinutes));
 
                     $convertedDate = DateConversionService::convertDateROtoCarbon_superbet($dateFormatRo);
 
@@ -157,7 +160,7 @@ class ScrapeSitesService
                     $betDetails['isLive'] = false;
 
                     $detailsBetElements = $match->findElements(WebDriverBy::className('odd-button__odd-value'));
-                    if(!empty($detailsBetElements)){
+                    if (! empty($detailsBetElements)) {
                         $detailsBet1 = $detailsBetElements[0]->getText();
                         $detailsBetx = $detailsBetElements[1]->getText();
                         $detailsBet2 = $detailsBetElements[2]->getText();
@@ -169,10 +172,11 @@ class ScrapeSitesService
                     $superbetMatches[$key] = $betDetails;
                 }
             }
+
             return $superbetMatches;
-        }catch (\Exception $e) {
-            Log::error('eroare scrapeSuperbetWithClassNameMethod',$e->getTrace());
-            echo "A apărut o eroare scrapeSuperbetWithClassNameMethod:" . $e->getMessage() ." line: ".$e->getLine();
+        } catch (\Exception $e) {
+            Log::error('eroare scrapeSuperbetWithClassNameMethod', $e->getTrace());
+            echo 'A apărut o eroare scrapeSuperbetWithClassNameMethod:'.$e->getMessage().' line: '.$e->getLine();
             $driver->quit();
             dd($e);
             exit;
@@ -180,6 +184,7 @@ class ScrapeSitesService
             $driver->quit();
         }
     }
+
     private function closeModalIfExists_superbet(RemoteWebDriver $driver)
     {
         // XPath to find the close button
@@ -201,11 +206,13 @@ class ScrapeSitesService
             //echo "❌ Close button not found, skipping...\n";
         }
     }
+
     //endregion
     //region casa_pariurilor
     //ex https://www.casapariurilor.ro/pariuri-online/fotbal/fotbal/romania-1
     //I am used scrol to get all matches
-    public function scrapeCasaPariurilorWithClassNameMethod($urlSearchMatches){
+    public function scrapeCasaPariurilorWithClassNameMethod($urlSearchMatches)
+    {
         $driver = $this->configWebDriverService->initializeWebDriver();
         $casaPariurilorMatches = [];
         try {
@@ -216,88 +223,86 @@ class ScrapeSitesService
             sleep(2);
             //select all from football
 
-            $scrollHeight1 = $driver->executeScript('return document.body.scrollHeight;') /5;
+            $scrollHeight1 = $driver->executeScript('return document.body.scrollHeight;') / 5;
             $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
-            $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
-            sleep(3);
+            //$driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
             //  $tabAll = $driver->findElement(WebDriverBy::xpath("//button[contains(normalize-space(.), 'TOT')]"));
             // $tabAll->click();
-            
+
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
             $scrollDistance = $scrollHeight1;
-            
             foreach ($matches as $match) {
                 $betDetails = [
                     'team1Name' => '',
                     'team2Name' => '',
-                    'odds' => [ '1' => '', 'x' => '', '2' => ''],
+                    'odds' => ['1' => '', 'x' => '', '2' => ''],
                     'startTime' => '',
                     'isLive' => '',
-                    'urlSearch' => $urlSearchMatches
+                    'urlSearch' => $urlSearchMatches,
                 ];
 
                 $scrollDistance += $scrollDistance / 10; // 10 parts from total scroll down
                 $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                 sleep(1);
 
-                $team1NameElement = $match->findElement(WebDriverBy::xpath("(//div[contains(@class,'fixture-card__participant')]//div)[1]"));
+                $team1NameElement = $match->findElement(WebDriverBy::xpath(".//div[1][contains(@class,'fixture-card__participant')]/div"));
                 $teamName1 = $team1NameElement->getText();
-                $team2NameElement = $match->findElement(WebDriverBy::xpath("(//div[contains(@class,'fixture-card__participant')]//div)[2]"));
+                $team2NameElement = $match->findElement(WebDriverBy::xpath(".//div[2][contains(@class,'fixture-card__participant')]/div"));
                 $teamName2 = $team2NameElement->getText();
 
                 $key = "$teamName1-$teamName2";
                 $betDetails['team1Name'] = $teamName1;
                 $betDetails['team2Name'] = $teamName2;
                 try {
-                    $xpathBet1 = "//section[1]//div[1]/div[contains(@class,'odds-button2__value')][1]";
-                    $xpathBet2 = "//section[1]//div[2]/div[contains(@class,'odds-button2__value')][1]";
-                    $xpathBet3 = "//section[1]//div[3]/div[contains(@class,'odds-button2__value')][1]";
+                    $xpathBet1 = ".//section[1]//div[1]/div[contains(@class,'odds-button2__value')][1]";
+                    $xpathBet2 = ".//section[1]//div[2]/div[contains(@class,'odds-button2__value')][1]";
+                    $xpathBet3 = ".//section[1]//div[3]/div[contains(@class,'odds-button2__value')][1]";
                     $elementBet1 = $match->findElement(WebDriverBy::xpath($xpathBet1));
                     $elementBetx = $match->findElement(WebDriverBy::xpath($xpathBet2));
                     $elementBet2 = $match->findElement(WebDriverBy::xpath($xpathBet3));
-                    //$elementDateTime = $match->findElement(WebDriverBy::xpath(".//div/time"));
-                }catch (\Exception $e){
-                    Log::error("Error in casapariorilor to match $key ,other details -> " . $e->getMessage(), [
+                    $elementDateTime = $match->findElement(WebDriverBy::xpath(".//div[contains(@class,'fixture-card__time')]/time"));
+                } catch (\Exception $e) {
+                    Log::error("Error in casapariorilor to match $key ,other details -> ".$e->getMessage(), [
                         'exception' => $e,
                         'xpathBet1' => $xpathBet1,
                         'xpathBet2' => $xpathBet2,
                         'xpathBet3' => $xpathBet3,
                     ]);
+
                     continue;
                 }
 
-                if(!empty($elementBet1) && !empty($elem▶entBetx) && !empty($elementBet2) /*&& !empty($elementDateTime)*/){
+                if (! empty($elementBet1) && ! empty($elementBetx) && ! empty($elementBet2) && ! empty($elementDateTime)) {
                     $detailsBet1 = $elementBet1->getText();
                     $detailsBetx = $elementBetx->getText();
                     $detailsBet2 = $elementBet2->getText();
-                    //$dateTime = $elementDateTime->getText();
+                    $dateTime = $elementDateTime->getText();
 
                     $betDetails['odds']['1'] = $detailsBet1;
                     $betDetails['odds']['x'] = $detailsBetx;
                     $betDetails['odds']['2'] = $detailsBet2;
 
-                    //$betDetails['startTime'] = DateConversionService::convertDate_CasaPariurilor($dateTime);
+                    $betDetails['startTime'] = DateConversionService::convertDate_CasaPariurilor($dateTime);
 
-                }else{
-                    throw new \Exception("Error: Missing required betting elements or match start time.");
+                } else {
+                    throw new \Exception('Error: Missing required betting elements or match start time.');
                 }
                 $casaPariurilorMatches[$key] = $betDetails;
             }
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             //Log::error('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
-            echo "A apărut o eroare superbet functia cautare scrapeCasaPariurilorWithClassNameMethod:" . $e->getMessage().' linia:'.$e->getLine();
+            echo 'A apărut o eroare superbet functia cautare scrapeCasaPariurilorWithClassNameMethod:'.$e->getMessage().' linia:'.$e->getLine();
             $driver->quit();
             //throw new \Exception('eroare scrapeCasaPariurilorWithClassNameMethod',$e->getTrace());
-            $errorMessage = "A apărut o eroare în scrapeCasaPariurilorWithClassNameMethod: " .
-                $e->getMessage() . ' linia:' . $e->getLine();
+            $errorMessage = 'A apărut o eroare în scrapeCasaPariurilorWithClassNameMethod: '.
+                $e->getMessage().' linia:'.$e->getLine();
 
             throw new \Exception($errorMessage, $e->getCode());
             //exit;
-        }finally {
+        } finally {
             $driver->quit();
         }
-        //dd($casaPariurilorMatches);
-        
+
         return $casaPariurilorMatches;
     }
 
