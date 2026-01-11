@@ -8,7 +8,7 @@ use App\Models\Country;
 
 class CountriesSeeder extends Seeder
 {
-    // Lista de tari in limba romana fara diacritice
+    // list of countries
     private array $countriesAndRegion = [
         'afganistan',
         'albania',
@@ -196,17 +196,18 @@ class CountriesSeeder extends Seeder
         'zimbabwe',
         'spania'
     ];
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        if (Country::count() == 0) {
-            foreach ($this->countriesAndRegion as $country) {
+        foreach ($this->countriesAndRegion as $country) {
+            // Check if the country already exists by name
+            $exists = Country::where('name', $country)->exists();
+            // Only insert if it doesn't exist
+            if (!$exists) {
                 Country::create([
-                    'name' => $country,
+                    'name' => $country
                 ]);
             }
         }
+
     }
 }

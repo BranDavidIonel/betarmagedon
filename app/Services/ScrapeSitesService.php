@@ -241,7 +241,7 @@ class ScrapeSitesService
                     'urlSearch' => $urlSearchMatches,
                 ];
 
-                $scrollDistance += $scrollDistance / 10; // 10 parts from total scroll down
+                $scrollDistance += $scrollDistance / 4; // 25% parts from total scroll down
                 $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
                 sleep(1);
 

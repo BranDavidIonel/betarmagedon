@@ -49,6 +49,7 @@ class SaveMatchService
         $checkExist = DB::table('scraped_matches')
                             ->where('team1_name', $team1Name)
                             ->where('team2_name', $team2Name)
+                            ->where('link_search_page_id', $existingLink->id)
                             ->where('start_time', $formattedStartTime)
                             ->first();
         if(!empty($checkExist)) {

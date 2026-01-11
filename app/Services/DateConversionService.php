@@ -1,7 +1,10 @@
 <?php
+
 namespace App\Services;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+
 class DateConversionService
 {
     public static function convertDateROtoCarbon_superbet(string $dataTextRo)
@@ -36,7 +39,7 @@ class DateConversionService
         // Handle year format correction if necessary
         // If year has 2 digits, prefix with "20"
         $convertedDate = preg_replace_callback('/(\d{2})\s*$/', function ($matches) {
-            return '20' . $matches[1];
+            return '20'.$matches[1];
         }, $convertedDate);
 
         // Now parse the date
@@ -44,12 +47,15 @@ class DateConversionService
             $dataCarbon = Carbon::createFromFormat('l, d F Y', $convertedDate);
         } catch (\Exception $e) {
             // Log the error and echo for debugging purposes
-            echo "Error: " . $e->getMessage();
-            echo "Converted Date: " . $convertedDate;
+            echo 'Error: '.$e->getMessage();
+            echo 'Converted Date: '.$convertedDate;
+
             return null; // Return null or handle as needed
         }
-       return $dataCarbon;
+
+        return $dataCarbon;
     }
+
     public static function convertDate_CasaPariurilor(string $dateTime)
     {
         try {
@@ -65,7 +71,7 @@ class DateConversionService
             // Case 2: "tomorrow HH:MM"
             if (str_starts_with($dateTime, 'mâine ')) {
                 $time = trim(substr($dateTime, 6)); // Extract time after "mâine "
-                Log::error('metoda 2 ->' . $time);
+                Log::error('metoda 2 ->'.$time);
                 // Adjust the time by 2 hours ahead
                 $adjustedTime = Carbon::parse($time)->addHours(2);
 
@@ -79,17 +85,18 @@ class DateConversionService
                 // Adjust the time by 2 hours ahead
                 $adjustedTime = Carbon::parse($timePart)->addHours(2);
                 $formattedTime = $adjustedTime->format('H:i');
+
                 return Carbon::createFromFormat('d.m.Y H:i', "$datePart $formattedTime", 'Europe/Bucharest')->format('d-m-Y H:i');
             }
 
             return null; // If none of the formats match
 
         } catch (\Exception $e) {
-            Log::error('Error in convertDate_CasaPariurilor: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Error in convertDate_CasaPariurilor: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
+
             // Optionally return null or a default value
             return null;
         }
     }
-
 }

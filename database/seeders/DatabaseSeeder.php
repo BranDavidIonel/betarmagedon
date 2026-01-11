@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(CountriesSeeder::class);
         $this->call(SitesSearchSeeder::class);
-        $this->call(CompetitionSeeder::class);
+        //$this->call(CompetitionSeeder::class);
+        $this->call(SampleCompetitionSeeder::class);
+        $this->call(SampleLinksSearchPageSeeder::class);
     }
 }
