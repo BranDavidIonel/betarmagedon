@@ -29,6 +29,27 @@ class SampleLinksSearchPageSeeder extends Seeder
             'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/romania-3/romania-1?tab=matches&filter=all',
         ],
         //endregion
+        //region franta 1
+        [
+            'competition_id' => 3,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/franta/ligue-1/215/',
+        ],
+        [
+            'competition_id' => 3,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/franta/ligue-1/toate?ct=m',
+        ],
+        [
+            'competition_id' => 3,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/franta-1/franta-ligue-1?tab=matches&filter=all',
+        ],
+
+        //endregion
         // Add more entries here for other competitions or sites
     ];
     //endregion

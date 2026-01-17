@@ -3,48 +3,72 @@
 @section('title', 'Old scraped data')
 
 @section('content')
-{{--    <div style="text-align: center; margin-bottom: 20px;">--}}
-{{--        <img src="{{ asset('betarmagedon-512x512.png') }}" alt="Bet Armagedon Logo" style="width: 150px; height: auto;">--}}
-{{--    </div>--}}
-    <div class="my-2">
-        <h1 class="mb-4">Match Data</h1>
-    @foreach ($returnAllMathcesData as $leagueName => $leagueData)
-            <h2>{{ $leagueName }}</h2>
+    <div class="">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Betano</th>
+                <th>Subertbet</th>
+                <th>Casapariurilor</th>
+                <th>Betting Analysis</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ($returnAllMathcesData as $leagueName => $leagueData)
+                <!-- League header row -->
+                <tr class="table-primary">
+                    <th colspan="5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ $leagueName }}</strong>
+                                <span class="text-muted">
+                            ({{ $leagueData['countryName'] }})
+                        </span>
+                            </div>
 
-            <p><strong>Search Has Profit:</strong> {{ $leagueData['searhHasProfit'] ? 'Yes' : 'No' }}</p>
-
-            <table class="table table-striped table-bordered">
-                <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>betano</th>
-                    <th>subertbet</th>
-                    <th>casapariurilor</th>
-                    <th>Odds</th>
+                            <div>
+                                Search Has Profit:
+                                @if($leagueData['searhHasProfit'])
+                                    <span class="badge bg-success">YES</span>
+                                @else
+                                    <span class="badge bg-danger">NO</span>
+                                @endif
+                            </div>
+                        </div>
+                    </th>
                 </tr>
-                </thead>
-                <tbody>
                 @foreach ($leagueData['detailsProfit'] as $index => $match)
                     <tr>
                     <td></td>
                     @foreach ($match['matchesData'] as $bookmaker => $matchData)
                         <td>
-{{--                            <span>{{ ucfirst($bookmaker) }}</span>--}}
                             <div><a href="{{$matchData['linkLeague']}}" target="_blank">link league</a></div>
-                            <div>{{ $matchData['team1Name'] }} - {{ $matchData['team2Name'] }}</div>
-                            <div>match time: {{ $matchData['startTime'] }}</div>
+                            <div><b>{{ $matchData['team1Name'] }}</b> - <b>{{ $matchData['team2Name'] }}</b></div>
+                            <div>match time: <b>{{ $matchData['startTime'] }}</b></div>
+                            <div>odds:
+                                1 -> <b>{{ $matchData['odds']['1'] }} </b>,
+                                X -> <b>{{ $matchData['odds']['x'] }} </b>,
+                                2 -> <b>{{ $matchData['odds']['2'] }} </b>
+                            </div>
                             <div>last scraped time: {{ $matchData['lastScrapedTime'] }}</div>
-
-
                         </td>
                     @endforeach
                     <td>
                         <table class="table table-sm table-bordered">
                             <thead class="table-light">
                             <tr>
-                                <th>Revers Odds</th>
+                                <th style="cursor: help;"
+                                    title="Reverse Odds = 1/(1/Odds1 + 1/Odds2 + 1/Odds3). Value < 1 = profit">
+                                    Reverse Odds
+                                </th>
                                 <th>Is Profit</th>
-                                <th>Max Bets</th>
+                                <th>
+                                    <span style="cursor: help;"
+                                          title="Get the best options for high-value bets with maximum winning potential">
+                                        Max Bets
+                                    </span>
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -62,8 +86,9 @@
                     </td>
                     </tr>
                 @endforeach
-                </tbody>
-            </table>
-        @endforeach
+
+                @endforeach
+            </tbody>
+        </table>
     </div>
 @endsection

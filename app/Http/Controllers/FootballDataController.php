@@ -247,11 +247,16 @@ class FootballDataController extends Controller
         });
         $comepetitionsIds = $scrapedMatches->pluck("competition_id")->toArray();
 
-        $comepetitions = DB::table("competitions")->whereIn("id", $comepetitionsIds)
-                        ->selectRaw("id, name")->get();
+        $comepetitions = DB::table("competitions")
+                        ->whereIn("id", $comepetitionsIds)
+                        ->selectRaw("id, name, country_id")
+                        ->get();
+        $countryIds = $comepetitions->pluck("country_id")->toArray();
+        $countries = DB::table("countries")->whereIn("id", $countryIds)->selectRaw("id, name")->get();
         $returnAllMathcesData = [];
         foreach ($comepetitions as $competition){
             $nameLeague = $competition->name;
+            $countryName = $countries->where("id", $competition->country_id)->first()->name;
             $betanoMatches = $scrapedMatches->where("competition_id", $competition->id)
                                             ->where("site_id", 1)
                                             ->toArray();
@@ -262,25 +267,24 @@ class FootballDataController extends Controller
                 ->where("site_id", 3)
                 ->toArray();
             $returnAllMathcesData[$nameLeague] = [
+                'countryName' => $countryName,
                 'betano_matches' => $betanoMatches,
                 'suberbet_matches' => $superbetMatches,
                 'casapariurilor_matches' => $casapariurilorMatches
             ];
             $searchRezultMatches = [];
             foreach($betanoMatches as $betanoMatch){
-//                if (is_object($betanoMatch)) {
-//                    $betanoMatch = json_decode(json_encode($betanoMatch), true);
-//                }
                 $betanoMatch = json_decode(json_encode($betanoMatch), true);
-
                 if(!$this->validateMatch($betanoMatch)){
                     continue;//next match search
                 }
+
                 $superbetMatches = json_decode(json_encode($superbetMatches), true);
                 $findMatchSuperbet = $this->searchMatch($betanoMatch, $superbetMatches);
                 if(!$this->validateMatch($findMatchSuperbet)){
                     continue;//next match search
                 }
+
                 $casapariurilorMatches = json_decode(json_encode($casapariurilorMatches), true);
                 $findMatchCasapariurilor = $this->searchMatch($betanoMatch, $casapariurilorMatches);
                 if(!$this->validateMatch($findMatchCasapariurilor)){
@@ -297,8 +301,7 @@ class FootballDataController extends Controller
             $returnAllMathcesData[$nameLeague]['searhHasProfit'] = $searhHasProfit;
             $returnAllMathcesData[$nameLeague]['detailsProfit'] = $searchRezultMatches;
         }
-        //dd($returnAllMathcesData);
-        //return view('football-type-cards', compact("returnAllMathcesData"));
+
         return view('football', compact("returnAllMathcesData"));
     }
     //endregion

@@ -26,6 +26,16 @@ class SampleCompetitionSeeder extends Seeder
             'alias' => ['liga 2', 'romania 2', 'romania liga 2 casa pariurilor']
         ],
         //endregion
+        //region franta data
+        [
+            'id' => 3,
+            'country_id' => 64,
+            'country_name' => 'franta',
+            'name' => 'ligue 1',
+            'alias' => ['ligue 1', 'franta 1', 'romania 1']
+        ],
+
+        //endregion
 
     ];
     public function run(): void
