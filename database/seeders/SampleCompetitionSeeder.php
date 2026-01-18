@@ -10,7 +10,7 @@ class SampleCompetitionSeeder extends Seeder
 {
 
     private $competitions = [
-        //region romania data
+        //region romania
         [
             'id' => 1,
             'country_id' => 140,
@@ -26,15 +26,45 @@ class SampleCompetitionSeeder extends Seeder
             'alias' => ['liga 2', 'romania 2', 'romania liga 2 casa pariurilor']
         ],
         //endregion
-        //region franta data
+        //region anglia
         [
             'id' => 3,
+            'country_id' => 6,
+            'country_name' => 'anglia',
+            'name' => 'premier league',
+            'alias' => ['premier league', 'anglia 1']
+        ],
+        [
+            'id' => 4,
+            'country_id' => 6,
+            'country_name' => 'anglia',
+            'name' => 'league one',
+            'alias' => ['league one', 'anglia 3']
+        ],
+        [
+            'id' => 5,
+            'country_id' => 6,
+            'country_name' => 'anglia',
+            'name' => 'league two',
+            'alias' => ['league two', 'anglia 4']
+        ],
+
+        //endregion
+        //region franta
+        [
+            'id' => 6,
             'country_id' => 64,
             'country_name' => 'franta',
             'name' => 'ligue 1',
-            'alias' => ['ligue 1', 'franta 1', 'romania 1']
+            'alias' => ['ligue 1', 'franta 1']
         ],
-
+        [
+            'id' => 7,
+            'country_id' => 64,
+            'country_name' => 'franta',
+            'name' => 'ligue 2',
+            'alias' => ['ligue 2', 'franta 2']
+        ],
         //endregion
 
     ];

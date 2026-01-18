@@ -20,8 +20,9 @@ class TestsApiController extends Controller
     {
         // Simulate a request to ScrapeMatchesApiController
         $requestBetanoLigue1 = Request::create('/api/scrape-betano', 'GET', [
-            'url' => '/sport/fotbal/romania/liga-1/17088'
+            'url' => '/sport/fotbal/romania/liga-1/17088/?bt=matchresult'
         ]);
+
 
         // Instantiate the ScrapeMatchesApiController with dependency injection
         $controllerScrapeAPI = app()->make(ScrapeMatchesApiController::class);

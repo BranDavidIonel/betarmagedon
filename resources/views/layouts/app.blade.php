@@ -23,7 +23,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{route("api-tests")}}">API Tests</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{route("scraped-live")}}">Scraped Data</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Bookkeeping</a></li>
