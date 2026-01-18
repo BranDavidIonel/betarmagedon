@@ -54,7 +54,13 @@ class SaveMatchService
                             ->first();
         if(!empty($checkExist)) {
             Log::info("function insertScrapedMatch -> match already exists for $team1Name $team2Name -> date:$formattedStartTime");
-            return false;
+            return DB::table('scraped_matches')
+                ->where('id', $checkExist->id)
+                ->update([
+                    'odds' => json_encode($odds),
+                    'type' => $type,
+                    'updated_at' => now(),
+                ]);
         }
 
 

@@ -68,7 +68,7 @@ class ScrapeSitesService
                 $betDetails['team2Name'] = $teamName2;
 
                 $dateStartMatch = Carbon::createFromTimestamp($timestamp);
-                $betDetails['startTime'] = $dateStartMatch->addHours(3)->format('d-m-Y H:i');
+                $betDetails['startTime'] = $dateStartMatch->addHours(2)->format('d-m-Y H:i');
                 $betDetails['isLive'] = isset($matchScript['liveNow']) ? true : false;
                 $detailsBetFromScript = $matchScript['markets'][0]['selections'];
                 if (empty($detailsBetFromScript)) {
@@ -156,7 +156,7 @@ class ScrapeSitesService
 
                     $convertedDate = DateConversionService::convertDateROtoCarbon_superbet($dateFormatRo);
 
-                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(3)->format('d-m-Y H:i');
+                    $betDetails['startTime'] = $convertedDate->setTime(intval($hour), intval($minutes), 0)->addHours(2)->format('d-m-Y H:i');
                     $betDetails['isLive'] = false;
 
                     $detailsBetElements = $match->findElements(WebDriverBy::className('odd-button__odd-value'));
