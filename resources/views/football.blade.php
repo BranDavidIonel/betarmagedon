@@ -40,7 +40,7 @@
                 </tr>
                 @foreach ($leagueData['detailsProfit'] as $index => $match)
                     <tr>
-                    <td></td>
+                        <td>{{$match['numberLine']}}</td>
                     @foreach ($match['matchesData'] as $bookmaker => $matchData)
                         <td>
                             <div><a href="{{$matchData['linkLeague']}}" target="_blank">link league</a></div>

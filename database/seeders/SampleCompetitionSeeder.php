@@ -66,6 +66,37 @@ class SampleCompetitionSeeder extends Seeder
             'alias' => ['ligue 2', 'franta 2']
         ],
         //endregion
+        //region germania
+        [
+            'id' => 8,
+            'country_id' => 68,
+            'country_name' => 'germania',
+            'name' => 'bundesliga',
+            'alias' => ['bundesliga', 'germania bundesliga', 'germania-bundesliga-1']
+        ],
+        [
+            'id' => 9,
+            'country_id' => 68,
+            'country_name' => 'germania',
+            'name' => 'germania cupa',
+            'alias' => ['germania cupa', 'germania cupa']
+        ],
+        [
+            'id' => 10,
+            'country_id' => 68,
+            'country_name' => 'germania',
+            'name' => 'bundesliga 2',
+            'alias' => ['bundesliga 2', 'germania 2', 'germania-2-1']
+        ],
+        [
+            'id' => 11,
+            'country_id' => 68,
+            'country_name' => 'germania',
+            'name' => '3 liga',
+            'alias' => ['3 liga', 'germania 3', 'germania-3-1']
+        ],
+
+        //endregion
 
     ];
     public function run(): void

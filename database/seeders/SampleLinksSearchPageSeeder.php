@@ -135,6 +135,88 @@ class SampleLinksSearchPageSeeder extends Seeder
         ],
         //endregion
         //endregion
+        //region germania
+        //region bundesliga
+        [
+            'competition_id' => 8,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/germania/bundesliga/216/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 8,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/germania/bundesliga/toate?ct=m',
+        ],
+        [
+            'competition_id' => 8,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/germania-2/germania-bundesliga-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //region germania cupa (dfb pokal)
+        [
+            'competition_id' => 9,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/germania/dfb-pokal/10486/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 9,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/germania/dfb-pokal/toate?ct=m',
+        ],
+        [
+            'competition_id' => 9,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/germania-2/germania-cupa?tab=matches&filter=all',
+        ],
+        //endregion
+        //region bundesliga 2
+        [
+            'competition_id' => 10,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/germania/2-bundesliga/217/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 10,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/germania/bundesliga-2/toate?ct=m',
+        ],
+        [
+            'competition_id' => 10,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/germania-2/germania-2-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //region 3 liga
+        [
+            'competition_id' => 11,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/germania/3-liga/17313/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 11,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/germania/3-liga/toate?ct=m',
+        ],
+        [
+            'competition_id' => 11,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/germania-2/germania-3-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //endregion
         // Add more entries here for other competitions or sites
     ];
     //endregion
