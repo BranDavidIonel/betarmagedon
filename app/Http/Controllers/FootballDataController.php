@@ -254,6 +254,7 @@ class FootballDataController extends Controller
         $countryIds = $comepetitions->pluck("country_id")->toArray();
         $countries = DB::table("countries")->whereIn("id", $countryIds)->selectRaw("id, name")->get();
         $returnAllMathcesData = [];
+        $nrMatches = 0;
         foreach ($comepetitions as $competition){
             $nameLeague = $competition->name;
             $countryName = $countries->where("id", $competition->country_id)->first()->name;
@@ -292,12 +293,18 @@ class FootballDataController extends Controller
                 }
 
                 $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
+                $nrMatches++;
                 if(!empty($searchProfit)){
-                    $searchRezultMatches[]= ['matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor],
-                        'profitData' => $searchProfit];
+                    $searchRezultMatches[]= [
+                                                'matchesData' => ['betano' => $betanoMatch , 'subertbet' => $findMatchSuperbet, 'casapariurilor' => $findMatchCasapariurilor],
+                                                'profitData' => $searchProfit,
+                                                'numberLine' => $nrMatches
+                    ];
                 }
+
             }
             $searhHasProfit = $this->hasProfitData($searchRezultMatches);
+
             $returnAllMathcesData[$nameLeague]['searhHasProfit'] = $searhHasProfit;
             $returnAllMathcesData[$nameLeague]['detailsProfit'] = $searchRezultMatches;
         }
@@ -380,7 +387,7 @@ class FootballDataController extends Controller
 
         $Cteam1name = $matchC['team1Name'];
         $Cteam2name = $matchC['team2Name'];
-        $Codds = $matchA['odds'];
+        $Codds = $matchC['odds'];
         $Cbet1 = $Codds['1'];
         $Cbetx = $Codds['x'];
         $Cbet2 = $Codds['2'];
