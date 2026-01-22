@@ -97,6 +97,61 @@ class SampleCompetitionSeeder extends Seeder
         ],
 
         //endregion
+        //region italia
+        [
+            'id' => 12,
+            'country_id' => 86,
+            'country_name' => 'italia',
+            'name' => 'serie a',
+            'alias' => ['serie a', 'italia serie a', 'italia-serie-a-1']
+        ],
+        [
+            'id' => 13,
+            'country_id' => 86,
+            'country_name' => 'italia',
+            'name' => 'coppa italia',
+            'alias' => ['coppa italia', 'italia cupa', 'italia-cupa-1']
+        ],
+        [
+            'id' => 14,
+            'country_id' => 86,
+            'country_name' => 'italia',
+            'name' => 'laliga',
+            'alias' => ['laliga', 'spania la liga', 'spania-la-liga']
+        ],
+        //endregion
+        //region spania
+        [
+            'id' => 15,
+            'country_id' => 185,
+            'country_name' => 'spania',
+            'name' => 'serie a',
+            'alias' => ['serie a', 'italia serie a', 'italia-serie-a-1']
+        ],
+        [
+            'id' => 16,
+            'country_id' => 185,
+            'country_name' => 'spania',
+            'name' => 'cupa regelui',
+            'alias' => ['cupa regelui', 'copa del rey', 'spania cupa', 'spania-cupa-1']
+        ],
+        [
+            'id' => 17,
+            'country_id' => 185,
+            'country_name' => 'spania',
+            'name' => 'segunda division',
+            'alias' => ['segunda division', 'laliga 2', 'spania 2', 'spania-2']
+        ],
+        //endregion
+        //region austria
+        [
+            'id' => 18,
+            'country_id' => 12,
+            'country_name' => 'austria',
+            'name' => 'austria',
+            'alias' => ['bundesliga', 'austria', 'austria-2']
+        ],
+        //endregion
 
     ];
     public function run(): void

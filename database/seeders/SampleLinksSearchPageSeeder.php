@@ -217,6 +217,152 @@ class SampleLinksSearchPageSeeder extends Seeder
         ],
         //endregion
         //endregion
+        //region italia
+        //region serie a
+        [
+            'competition_id' => 12,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/italia/serie-a/1635/',
+        ],
+        [
+            'competition_id' => 12,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/italia/serie-a/toate?ct=m',
+        ],
+        [
+            'competition_id' => 12,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/italia-3/italia-serie-a-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //region coppa italia
+        [
+            'competition_id' => 13,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/italia/coppa-italia/10815/',
+        ],
+        [
+            'competition_id' => 13,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/italia/coppa-italia/toate?ct=m',
+        ],
+        [
+            'competition_id' => 13,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/italia-3/italia-cupa-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //region serie-b
+        [
+            'competition_id' => 14,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/italia/serie-b/10210/',
+        ],
+        [
+            'competition_id' => 14,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/italia/serie-b/toate?ct=m',
+        ],
+        [
+            'competition_id' => 14,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/italia-3/italia-2?tab=matches&filter=all',
+        ],
+        //endregion
+        //endregion
+        //region spania
+        //region laliga
+        [
+            'competition_id' => 15,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/spania/laliga/5/',
+        ],
+        [
+            'competition_id' => 15,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/spania/laliga/toate?ct=m',
+        ],
+        [
+            'competition_id' => 15,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/spania-6/spania-la-liga?tab=matches&filter=all',
+        ],
+        //endregion
+        //region cupa regelui
+        [
+            'competition_id' => 16,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/spania/cupa-regelui/10067/',
+        ],
+        [
+            'competition_id' => 16,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/spania/copa-del-rey/toate?ct=or',
+        ],
+        [
+            'competition_id' => 16,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/spania-6/spania-cupa-1?tab=matches&filter=all',
+        ],
+        //endregion
+        //region laliga 2
+        [
+            'competition_id' => 17,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/spania/segunda-division/10000/',
+        ],
+        [
+            'competition_id' => 17,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/spania/laliga-2/toate?ct=m',
+        ],
+        [
+            'competition_id' => 17,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/spania-6/spania-2?tab=matches&filter=all',
+        ],
+        //endregion
+        //endregion
+        //region austria
+        //region bundesliga
+        [
+            'competition_id' => 18,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/austria/bundesliga/16823/',
+        ],
+        [
+            'competition_id' => 18,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/austria/bundesliga/toate?ct=m',
+        ],
+        [
+            'competition_id' => 18,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/austria-2?tab=matches&filter=all',
+        ]
+        //endregion
+        //endregion
         // Add more entries here for other competitions or sites
     ];
     //endregion
