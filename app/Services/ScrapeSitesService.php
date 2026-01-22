@@ -8,7 +8,7 @@ use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverWait;
 use Illuminate\Support\Facades\Log;
-
+use Facebook\WebDriver\Exception\TimeoutException;
 class ScrapeSitesService
 {
     //region init
@@ -109,9 +109,16 @@ class ScrapeSitesService
             $driver->get($urlSearchMatches);
             $this->configWebDriverService->waitForPageReady($driver);
             //don't work without this ( check is page ready like above)
-            $driver->wait(3)->until(
-                WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(WebDriverBy::className('single-event'))
-            );
+            // Wait for elements with class "single-event" to be present
+            try {
+                $driver->wait(3)->until(
+                    WebDriverExpectedCondition::presenceOfAllElementsLocatedBy(
+                        WebDriverBy::className('single-event')
+                    )
+                );
+            } catch (TimeoutException $e) {
+                throw new \Exception("No matches found for URL: {$urlSearchMatches}");
+            }
             $this->closeModalIfExists_superbet($driver);
             //events-by-date , is card with multiples matches group on date
             $cardDatesElements = $driver->findElements(WebDriverBy::className('event-by-date'));
@@ -175,11 +182,16 @@ class ScrapeSitesService
 
             return $superbetMatches;
         } catch (\Exception $e) {
-            Log::error('eroare scrapeSuperbetWithClassNameMethod', $e->getTrace());
-            echo 'A apărut o eroare scrapeSuperbetWithClassNameMethod:'.$e->getMessage().' line: '.$e->getLine();
+            $messageError = $e->getMessage();
+            if(strpos($messageError, 'No matches found for URL:') === false) {
+                Log::error($messageError);
+                Log::error('error getTrace -> ', $e->getTrace());
+            }else{
+                Log::alert($messageError);
+            }
             $driver->quit();
-            dd($e);
-            exit;
+//            dd($e);
+            return [];
         } finally {
             $driver->quit();
         }
@@ -231,7 +243,9 @@ class ScrapeSitesService
 
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
             $scrollDistance = $scrollHeight1;
-            foreach ($matches as $match) {
+            $maxScrolls = 6;
+            $scrollCount = 0;
+            foreach ($matches as $keyMatches => $match) {
                 $betDetails = [
                     'team1Name' => '',
                     'team2Name' => '',
@@ -240,11 +254,12 @@ class ScrapeSitesService
                     'isLive' => '',
                     'urlSearch' => $urlSearchMatches,
                 ];
-
-                $scrollDistance += $scrollDistance / 4; // 25% parts from total scroll down
-                $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
-                sleep(1);
-
+                if ($keyMatches % 3 === 0 && $scrollCount < $maxScrolls) {
+                    $scrollDistance += $scrollDistance / 3; // 33% parts from total scroll down
+                    $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
+                    sleep(1);
+                    $scrollCount++;
+                }
                 $team1NameElement = $match->findElement(WebDriverBy::xpath(".//div[1][contains(@class,'fixture-card__participant')]/div"));
                 $teamName1 = $team1NameElement->getText();
                 $team2NameElement = $match->findElement(WebDriverBy::xpath(".//div[2][contains(@class,'fixture-card__participant')]/div"));

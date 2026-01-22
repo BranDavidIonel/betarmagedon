@@ -42,8 +42,9 @@ class TestsApiController extends Controller
         // Simulate a request to ScrapeMatchesApiController
         $requestBetanoLigue1 = Request::create('/api/scrape-superbet', 'GET', [
             'url' => '/pariuri-sportive/fotbal/romania/superliga/toate?ct=m'
-            //'url' => '/pariuri-sportive/fotbal/germania/bundesliga/toate?ct=m',
+            //'url' => '/pariuri-sportive/fotbal/germania/bundesliga/toate?ct=m'
             //'url' => '/pariuri-sportive/fotbal/germania/dfb-pokal/toate?ct=m'
+            //'url' => '/pariuri-sportive/fotbal/spania/copa-del-rey/toate?ct=or'
 
         ]);
 
@@ -65,6 +66,7 @@ class TestsApiController extends Controller
         // Simulate a request to ScrapeMatchesApiController
         $requestBetanoLigue1 = Request::create('/api/scrape-casapariurilor', 'GET', [
             'url' => '/pariuri-online/fotbal/romania-3/romania-1?filter=all&tab=matches'
+            //'url' => '/pariuri-online/fotbal/romania-3/romania-2?filter=all&tab=matches'
         ]);
 
         // Instantiate the ScrapeMatchesApiController with dependency injection
