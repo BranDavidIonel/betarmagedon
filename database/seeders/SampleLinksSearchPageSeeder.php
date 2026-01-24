@@ -360,10 +360,54 @@ class SampleLinksSearchPageSeeder extends Seeder
             'site_id' => 3,
             'type_game' => 'football',
             'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/austria-2?tab=matches&filter=all',
-        ]
+        ],
         //endregion
         //endregion
-        // Add more entries here for other competitions or sites
+        //region belgia
+        //region pro league
+        [
+            'competition_id' => 19,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/belgia/1a-pro-league/16849/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 19,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/belgia/pro-league/toate?ct=m',
+        ],
+        [
+            'competition_id' => 19,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/belgia/belgia-1?filter=all&tab=matches',
+        ],
+        //endregion
+        //endregion
+        //region danemarca
+        //region
+        [
+            'competition_id' => 20,
+            'site_id' => 1,
+            'type_game' => 'football',
+            'link_league' => 'https://ro.betano.com/sport/fotbal/danemarca/superligaen/16955/?bt=matchresult',
+        ],
+        [
+            'competition_id' => 20,
+            'site_id' => 2,
+            'type_game' => 'football',
+            'link_league' => 'https://superbet.ro/pariuri-sportive/fotbal/danemarca/superliga/toate?ct=m',
+        ],
+        [
+            'competition_id' => 20,
+            'site_id' => 3,
+            'type_game' => 'football',
+            'link_league' => 'https://www.casapariurilor.ro/pariuri-online/fotbal/danemarca-3/danemarca-1-1?filter=all&tab=matches',
+        ],
+        //endregion
+        //endregion
+        // Add more entries here for other sites
     ];
     //endregion
     /**

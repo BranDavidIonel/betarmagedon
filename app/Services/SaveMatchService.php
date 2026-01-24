@@ -10,13 +10,13 @@ use Exception;
 class SaveMatchService
 {
     /**
-     * Function to insert a new match record into the database using DB::table.
+     * Function to insert/update a  match record into the database using DB::table.
      *
      * @param string|$linkLeague
      * @param array|$matchData
      * @return bool True if insertion was successful, false otherwise
      */
-    public function insertScrapedMatch( string $linkLeague, array $matchData,  string $type): bool
+    public function insertOrUpdateScrapedMatch( string $linkLeague, array $matchData,  string $type): bool
     {
         $existingLink = LinksSearchPage::where('link_league', $linkLeague)->first();
         if(empty($existingLink)) {
@@ -53,7 +53,7 @@ class SaveMatchService
                             ->where('start_time', $formattedStartTime)
                             ->first();
         if(!empty($checkExist)) {
-            Log::info("function insertScrapedMatch -> match already exists for $team1Name $team2Name -> date:$formattedStartTime");
+            //Log::info("function insertScrapedMatch -> match already exists for $team1Name $team2Name -> date:$formattedStartTime");
             return DB::table('scraped_matches')
                 ->where('id', $checkExist->id)
                 ->update([
@@ -62,8 +62,7 @@ class SaveMatchService
                     'updated_at' => now(),
                 ]);
         }
-
-
+        Log::info("function insertScrapedMatch -> new insert for $team1Name $team2Name -> date:$formattedStartTime");
         try {
             // Insert data directly into the database using DB::table
             return DB::table('scraped_matches')->insert([

@@ -152,6 +152,25 @@ class SampleCompetitionSeeder extends Seeder
             'alias' => ['bundesliga', 'austria', 'austria-2']
         ],
         //endregion
+        //region belgia
+        [
+            'id' => 19,
+            'country_id' => 19,
+            'country_name' => 'belgia',
+            'name' => '1a pro league',
+            'alias' => ['1a pro league','pro league', '1a-pro-league', 'belgia 1', 'belgia-1']
+        ],
+        //endregion
+        //region danemarca
+        [
+            'id' => 20,
+            'country_id' => 49,
+            'country_name' => 'danemarca',
+            'name' => 'superligaen',
+            'alias' => ['superligaen','superliga', 'danemarca 1', 'danemarca-1-1']
+        ],
+        //endregion
+        // Add more entries here for other competition
 
     ];
     public function run(): void

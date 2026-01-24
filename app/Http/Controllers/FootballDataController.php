@@ -202,9 +202,9 @@ class FootballDataController extends Controller
                         continue;//next match search
                     }
 
-                    $this->saveMatchService->insertScrapedMatch($urlBetano, $betanoMatch, 'betano_matches' );
-                    $this->saveMatchService->insertScrapedMatch($urlSuperbet, $findMatchSuperbet, 'suberbet_matches' );
-                    $this->saveMatchService->insertScrapedMatch($urlCasapariurilor, $findMatchCasapariurilor, 'casapariurilor_matches' );
+                    $this->saveMatchService->insertOrUpdateScrapedMatch($urlBetano, $betanoMatch, 'betano_matches' );
+                    $this->saveMatchService->insertOrUpdateScrapedMatch($urlSuperbet, $findMatchSuperbet, 'suberbet_matches' );
+                    $this->saveMatchService->insertOrUpdateScrapedMatch($urlCasapariurilor, $findMatchCasapariurilor, 'casapariurilor_matches' );
 
                     $searchProfit = $this->getProfitMatchData($betanoMatch, $findMatchSuperbet, $findMatchCasapariurilor);
                     if(!empty($searchProfit)){
