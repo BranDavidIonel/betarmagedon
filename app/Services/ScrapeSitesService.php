@@ -277,12 +277,12 @@ class ScrapeSitesService
                     $elementBet2 = $match->findElement(WebDriverBy::xpath($xpathBet3));
                     $elementDateTime = $match->findElement(WebDriverBy::xpath(".//div[contains(@class,'fixture-card__time')]/time"));
                 } catch (\Exception $e) {
-                    Log::error("Error in casapariorilor to match $key ,other details -> ".$e->getMessage(), [
-                        'exception' => $e,
-                        'xpathBet1' => $xpathBet1,
-                        'xpathBet2' => $xpathBet2,
-                        'xpathBet3' => $xpathBet3,
-                    ]);
+//                    Log::error("Error in casapariorilor to match $key ,other details -> ".$e->getMessage(), [
+//                        'exception' => $e,
+//                        'xpathBet1' => $xpathBet1,
+//                        'xpathBet2' => $xpathBet2,
+//                        'xpathBet3' => $xpathBet3,
+//                    ]);
 
                     continue;
                 }

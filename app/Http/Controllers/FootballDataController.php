@@ -16,11 +16,13 @@ use Illuminate\Support\Collection;
 use Laravel\Dusk\Browser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 //my class
 use App\Services\DateConversionService;
 use App\Services\ConfigWebDriverService;
 use App\Models\LinksSearchPage;
 use Illuminate\Support\Facades\DB;
+
 
 class FootballDataController extends Controller
 {
@@ -137,6 +139,22 @@ class FootballDataController extends Controller
 
     public function fetchData()
     {
+        $returnAllMathcesData = [
+            'league_name' =>
+                ['betano_matches' => [],
+                    'suberbet_matches' => [],
+                    'casapariurilor_matches' => []
+                ],
+            'searchRezultMatches' => []
+        ];
+
+        //check for cron is already running
+        if (Cache::has('football_fetch_running')) {
+            Log::info("Scraped live already running");
+            return view('scraped-data', compact("returnAllMathcesData"));
+        }
+        Cache::put('football_fetch_running', true, now()->addMinutes(30));
+
         $firefoxOptions = new FirefoxOptions();
         $argumentsBrowser = [
             '--disable-gpu', // Evită problemele cu GPU
@@ -151,14 +169,7 @@ class FootballDataController extends Controller
         $capabilities = DesiredCapabilities::firefox();
         $capabilities->setCapability('moz:firefoxOptions', $firefoxOptions->toArray());
 
-        $returnAllMathcesData = [
-            'league_name' =>
-                ['betano_matches' => [],
-                    'suberbet_matches' => [],
-                    'casapariurilor_matches' => []
-                ],
-            'searchRezultMatches' => []
-        ];
+
         $betanoMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $superbetMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
         $casapariurilorMatches = [['team1Name' => '', 'team2Name' => '', '1' => '', 'x' => '', '2' => '', 'startTime' => '', 'isLive' => '']];
@@ -226,8 +237,7 @@ class FootballDataController extends Controller
                 Log::info('Rezult matches details:', $searchRezultMatches);
                 Log::info("end search for:$keyLigName");
             }
-            //return $returnAllMathcesData;
-
+            Cache::forget('football_fetch_running');
             return view('scraped-data', compact("returnAllMathcesData"));
         } catch (\Exception $e) {
             dd($e);
