@@ -63,15 +63,14 @@ class DateConversionService
             // Case 1: "today HH:MM"
             if (str_starts_with($dateTime, 'azi ')) {
                 $time = trim(substr($dateTime, 4)); // Extract time after "azi "
-                // Adjust the time by 3 hours ahead
-                $adjustedTime = Carbon::parse($time)->addHours(3);
+                // Adjust the time by 2 hours ahead
+                $adjustedTime = Carbon::parse($time)->addHours(2);
 
                 return Carbon::today('Europe/Bucharest')->setTimeFromTimeString($adjustedTime->format('H:i'))->format('d-m-Y H:i');
             }
             // Case 2: "tomorrow HH:MM"
             if (str_starts_with($dateTime, 'mâine ')) {
                 $time = trim(substr($dateTime, 6)); // Extract time after "mâine "
-                Log::error('metoda 2 ->'.$time);
                 // Adjust the time by 2 hours ahead
                 $adjustedTime = Carbon::parse($time)->addHours(2);
 
