@@ -32,7 +32,7 @@
             </div>
         </nav>
 
-    <div class="content-wrapper mt-4 ">
+    <div class="mt-4 ml-2 px-4">
         @yield('content')
     </div>
 

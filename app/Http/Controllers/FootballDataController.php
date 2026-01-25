@@ -22,7 +22,7 @@ use App\Services\DateConversionService;
 use App\Services\ConfigWebDriverService;
 use App\Models\LinksSearchPage;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Http\Request;
 
 class FootballDataController extends Controller
 {
@@ -243,8 +243,11 @@ class FootballDataController extends Controller
             dd($e);
         }
     }
-    public function searchMatchesDataFromDB()
+    public function searchMatchesDataFromDB(Request $request)
     {
+        //from home filters
+        $maxOddsFilter = $request->query('maxOdds', 2); // 2 it is default value
+
         $scrapedMatches = DB::table("scraped_matches AS sm")
                         ->join("links_search_page AS lsp", "lsp.id", "=", "sm.link_search_page_id")
                         ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id, lsp.link_league as linkLeague,
@@ -315,12 +318,43 @@ class FootballDataController extends Controller
             }
             $searhHasProfit = $this->hasProfitData($searchRezultMatches);
 
+
             $returnAllMathcesData[$nameLeague]['searhHasProfit'] = $searhHasProfit;
             $returnAllMathcesData[$nameLeague]['detailsProfit'] = $searchRezultMatches;
         }
+        $returnAllMathcesData = $this->filterByMaxReversOdds(
+            $returnAllMathcesData,
+            $maxOddsFilter
+        );
 
         return view('football', compact("returnAllMathcesData"));
     }
+    private function filterByMaxReversOdds(array $data, float $maxOdds): array
+    {
+        foreach ($data as $leagueName => $leagueData) {
+
+            if (!isset($leagueData['detailsProfit'])) {
+                unset($data[$leagueName]);
+                continue;
+            }
+
+            $data[$leagueName]['detailsProfit'] = array_values(array_filter(
+                $leagueData['detailsProfit'],
+                fn ($item) =>
+                    isset($item['profitData']['reversOdds']) &&
+                    $item['profitData']['reversOdds'] < $maxOdds
+            ));
+
+            // remove league if no matches remain
+            if (empty($data[$leagueName]['detailsProfit'])) {
+                unset($data[$leagueName]);
+            }
+        }
+
+        return $data;
+    }
+
+
     //endregion
 
     //region search is profit match

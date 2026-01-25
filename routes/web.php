@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FootballDataController;
 use App\Http\Controllers\TestsApiController;
 
-Route::get('/', [FootballDataController::class, 'searchMatchesDataFromDB']);
+Route::get('/', [FootballDataController::class, 'searchMatchesDataFromDB'])->name('home');
 Route::get('/scraped', [FootballDataController::class, 'searchMatchesDataFromDB']);
 Route::get('/scraped-live', [FootballDataController::class, 'fetchData'])->name("scraped-live");
 
