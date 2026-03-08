@@ -39,7 +39,7 @@ class ScrapeSitesService
             preg_match($pattern, $pageSource, $matches);
             $scriptContent = [];
             if (isset($matches[1])) {
-                $initialStateJson = $matches[1].'}';
+                $initialStateJson = $matches[1] . '}';
                 $scriptContent = json_decode($initialStateJson, true);
             }
 
@@ -47,26 +47,21 @@ class ScrapeSitesService
 
             $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
             foreach ($matchesDataFromScripts as $matchScript) {
+                //don't exist the match
+                if (! isset($matchScript['participants'][0]['name']) || ! isset($matchScript['participants'][1]['name'])) {
+                    continue;
+                }
+
                 $betDetails = [
-                    'team1Name' => '',
-                    'team2Name' => '',
+                    'team1Name' => $matchScript['participants'][0]['name'],
+                    'team2Name' => $matchScript['participants'][1]['name'],
                     'odds' => ['1' => '', 'x' => '', '2' => ''],
                     'startTime' => '',
                     'isLive' => '',
                     'urlSearch' => $urlSearchMatches,
                 ];
 
-                //don't exist the match
-                if (! isset($matchScript['participants'][0]['name']) || ! isset($matchScript['participants'][1]['name'])) {
-                    continue;
-                }
-                $teamName1 = $matchScript['participants'][0]['name'];
-                $teamName2 = $matchScript['participants'][1]['name'];
                 $timestamp = $matchScript['startTime'] / 1000;
-
-                $betDetails['team1Name'] = $teamName1;
-                $betDetails['team2Name'] = $teamName2;
-
                 $dateStartMatch = Carbon::createFromTimestamp($timestamp);
                 $betDetails['startTime'] = $dateStartMatch->addHours(2)->format('d-m-Y H:i');
                 $betDetails['isLive'] = isset($matchScript['liveNow']) ? true : false;
@@ -83,7 +78,7 @@ class ScrapeSitesService
                 $betDetails['odds']['x'] = $detailsBetx;
                 $betDetails['odds']['2'] = $detailsBet2;
 
-                $key = "$teamName1-$teamName2";
+                $key = "{$betDetails['team1Name']}-{$betDetails['team2Name']}";
                 $dataReturn[$key] = $betDetails;
             }
 
@@ -235,14 +230,14 @@ class ScrapeSitesService
             sleep(2);
             //select all from football
 
-            $scrollHeight1 = $driver->executeScript('return document.body.scrollHeight;') / 5;
-            $driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
-            //$driver->executeScript("window.scrollTo(0, {$scrollHeight1});");
-            //  $tabAll = $driver->findElement(WebDriverBy::xpath("//button[contains(normalize-space(.), 'TOT')]"));
-            // $tabAll->click();
+            // Scroll to bottom to load all lazy-loaded content
+            $totalHeight = $this->scrollToBottomLazyLoad($driver, 30, 1);
+
+            // Scroll up by 50% to start from middle of page
+            $this->scrollUpByPercentage($driver, 80);
 
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
-            $scrollDistance = $scrollHeight1;
+            $scrollDistance = (int) ($totalHeight / 2);
             $maxScrolls = 6;
             $scrollCount = 0;
             foreach ($matches as $keyMatches => $match) {
@@ -254,12 +249,10 @@ class ScrapeSitesService
                     'isLive' => '',
                     'urlSearch' => $urlSearchMatches,
                 ];
-                if ($keyMatches % 3 === 0 && $scrollCount < $maxScrolls) {
-                    $scrollDistance += $scrollDistance / 3; // 33% parts from total scroll down
-                    $driver->executeScript("window.scrollTo(0, {$scrollDistance});");
-                    sleep(1);
-                    $scrollCount++;
-                }
+
+                // Scroll incrementally every 3 matches
+                $scrollDistance = $this->scrollDownIncrementalByPercentage($driver, $keyMatches, 3, $scrollDistance);
+
                 $team1NameElement = $match->findElement(WebDriverBy::xpath(".//div[1][contains(@class,'fixture-card__participant')]/div"));
                 $teamName1 = $team1NameElement->getText();
                 $team2NameElement = $match->findElement(WebDriverBy::xpath(".//div[2][contains(@class,'fixture-card__participant')]/div"));
@@ -319,6 +312,128 @@ class ScrapeSitesService
         }
 
         return $casaPariurilorMatches;
+    }
+
+    //endregion
+
+    //region scroll methods
+    /**
+     * Scrolls to the bottom of the page, waiting for lazy-loaded content to load.
+     * Continues scrolling until no new content is detected or max attempts reached.
+     *
+     * @param RemoteWebDriver $driver
+     * @param int $maxScrolls - Maximum number of scroll attempts
+     * @param int $waitSeconds - Time to wait between scrolls for content to load
+     * @return int - Total page height after scrolling
+     */
+    private function scrollToBottomLazyLoad(RemoteWebDriver $driver, $maxScrolls = 30, $waitSeconds = 1)
+    {
+        $lastHeight = 0;
+        $scrollCount = 0;
+
+        while ($scrollCount < $maxScrolls) {
+            $height = (int) $driver->executeScript('return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);');
+            $driver->executeScript("window.scrollTo(0, {$height});");
+            sleep($waitSeconds);
+
+            $newHeight = (int) $driver->executeScript('return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);');
+            if ($newHeight === $height || $newHeight === $lastHeight) {
+                break; // reached bottom / no more content
+            }
+
+            $lastHeight = $height;
+            $scrollCount++;
+        }
+
+        return $height;
+    }
+
+    /**
+     * Scrolls up by a percentage of the page height.
+     *
+     * @param RemoteWebDriver $driver
+     * @param int $percentage - Percentage to scroll up (default 50%)
+     */
+    private function scrollUpByPercentage(RemoteWebDriver $driver, $percentage = 50)
+    {
+        $height = (int) $driver->executeScript('return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);');
+        $scrollAmount = (int) floor($height * $percentage / 100);
+        $driver->executeScript("window.scrollBy(0, -{$scrollAmount});");
+        sleep(1);
+    }
+
+    /**
+     * Scrolls down by a percentage of the page height.
+     *
+     * @param RemoteWebDriver $driver
+     * @param int $percentage - Percentage to scroll down (default 50%)
+     */
+    private function scrollDownByPercentage(RemoteWebDriver $driver, $percentage = 50)
+    {
+        $height = (int) $driver->executeScript('return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);');
+        $scrollAmount = (int) floor($height * $percentage / 100);
+        $driver->executeScript("window.scrollBy(0, {$scrollAmount});");
+        sleep(1);
+    }
+
+    /**
+     * Scrolls to a specific absolute position from top.
+     *
+     * @param RemoteWebDriver $driver
+     * @param int $pixelsFromTop - Pixels from top to scroll to
+     */
+    private function scrollToAbsolutePosition(RemoteWebDriver $driver, $pixelsFromTop)
+    {
+        $driver->executeScript("window.scrollTo(0, {$pixelsFromTop});");
+        sleep(1);
+    }
+
+    /**
+     * Scrolls down by a percentage during loop iteration (used for incremental scrolling).
+     * Useful when you need to scroll while collecting elements.
+     *
+     * @param RemoteWebDriver $driver
+     * @param int $currentIndex - Current iteration index
+     * @param int $divisor - Divide scroll distance by this (default 3 for 33% increments)
+     * @param int $baseScrollDistance - Base scroll distance to increment
+     * @return int - New scroll distance
+     */
+    private function scrollDownIncrementalByPercentage(RemoteWebDriver $driver, $currentIndex, $divisor = 3, $baseScrollDistance = 0)
+    {
+        if ($baseScrollDistance === 0) {
+            $baseScrollDistance = (int) $driver->executeScript('return document.body.scrollHeight;') / 2;
+        }
+
+        if ($currentIndex % 3 === 0) {
+            $newScrollDistance = (int) ($baseScrollDistance + ($baseScrollDistance / $divisor));
+            $driver->executeScript("window.scrollTo(0, {$newScrollDistance});");
+            sleep(1);
+            return $newScrollDistance;
+        }
+
+        return $baseScrollDistance;
+    }
+
+    /**
+     * Gets the current total scroll height of the page.
+     *
+     * @param RemoteWebDriver $driver
+     * @return int - Total scroll height
+     */
+    private function getPageTotalHeight(RemoteWebDriver $driver)
+    {
+        return (int) $driver->executeScript('return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);');
+    }
+
+    /**
+     * Gets the current scroll position from top.
+     *
+     * @param RemoteWebDriver $driver
+     * @return int - Current scroll position
+     */
+    private function getCurrentScrollPosition(RemoteWebDriver $driver)
+    {
+        return (int) $driver->executeScript('return window.pageYOffset || document.documentElement.scrollTop;');
     }
 
     //endregion
