@@ -9,6 +9,8 @@
             <div class="col-md-2 col-lg-2 border-end bg-light p-3">
                 <form method="GET" action="{{ route('home') }}">
                     <h5 class="mb-3">Filters</h5>
+
+                    <!-- Max Reverse Odds Filter -->
                     <div class="mb-3">
                         <label for="maxOdds" class="form-label">
                             Max Reverse Odds
@@ -31,7 +33,7 @@
                             class="form-control"
                             id="maxOdds"
                             name="maxOdds"
-                            value="{{ request('maxOdds', 2) }}"
+                            value="{{ request('maxOdds', $maxOddsFilter ?? 2) }}"
                         >
 
                         <div class="form-text">
@@ -39,6 +41,49 @@
                             <b>1.01</b> = very close to profit<br>
                             <b>1.00</b> = sure bets only
                         </div>
+                    </div>
+
+                    <!-- Last Scraped Time Filter -->
+                    <div class="mb-3">
+                        <label for="scrapedFromDate" class="form-label">
+                            From Date
+                            <span
+                                style="cursor: help;"
+                                title="Filter matches scraped from this date onwards.
+    Default is today's date."
+                            >
+                                ⓘ
+                            </span>
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="scrapedFromDate"
+                            name="scrapedFromDate"
+                            value="{{ request('scrapedFromDate', $scrapedFromDate ?? now()->toDateString()) }}"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="scrapedToDate" class="form-label">
+                            To Date
+                            <span
+                                style="cursor: help;"
+                                title="Filter matches scraped until this date.
+    Default is today's date."
+                            >
+                                ⓘ
+                            </span>
+                        </label>
+
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="scrapedToDate"
+                            name="scrapedToDate"
+                            value="{{ request('scrapedToDate', $scrapedToDate ?? now()->toDateString()) }}"
+                        >
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">

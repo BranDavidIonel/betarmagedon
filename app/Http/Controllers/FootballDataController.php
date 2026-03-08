@@ -248,11 +248,17 @@ class FootballDataController extends Controller
         //from home filters
         $maxOddsFilter = $request->query('maxOdds', 2); // 2 it is default value
 
+        // Date range filter for lastScrapedTime
+        $scrapedFromDate = $request->query('scrapedFromDate', Carbon::now()->startOfDay()->toDateString());
+        $scrapedToDate = $request->query('scrapedToDate', Carbon::now()->endOfDay()->toDateString());
+
         $scrapedMatches = DB::table("scraped_matches AS sm")
                         ->join("links_search_page AS lsp", "lsp.id", "=", "sm.link_search_page_id")
                         ->selectRaw("sm.id AS idScrapedMatches, lsp.site_id, lsp.competition_id, lsp.link_league as linkLeague,
                                                 sm.link_search_page_id, sm.team1_name as team1Name, sm.team2_name as team2Name,
                                                 sm.odds, sm.start_time as startTime, sm.updated_at as lastScrapedTime")
+                        ->whereDate("sm.updated_at", ">=", $scrapedFromDate)
+                        ->whereDate("sm.updated_at", "<=", $scrapedToDate)
                         ->orderBy("start_time", "desc")->get();
         $scrapedMatches = $scrapedMatches->map(function($match) {
             $match->odds = json_decode($match->odds, true);
@@ -327,7 +333,7 @@ class FootballDataController extends Controller
             $maxOddsFilter
         );
 
-        return view('football', compact("returnAllMathcesData"));
+        return view('football', compact("returnAllMathcesData", "scrapedFromDate", "scrapedToDate", "maxOddsFilter"));
     }
     private function filterByMaxReversOdds(array $data, float $maxOdds): array
     {
