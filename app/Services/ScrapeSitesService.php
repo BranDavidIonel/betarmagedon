@@ -227,17 +227,16 @@ class ScrapeSitesService
             $this->configWebDriverService->waitForPageReady($driver);
             // Call the function to handle cookie consent
             AccepCookiesButtonService::acceptCookiesCasaPariurilor($driver);
-            sleep(2);
             //select all from football
-
             // Scroll to bottom to load all lazy-loaded content
             $totalHeight = $this->scrollToBottomLazyLoad($driver, 30, 1);
 
             // Scroll up by 50% to start from middle of page
-            $this->scrollUpByPercentage($driver, 80);
+            $this->scrollUpByPercentage($driver, 90);
+            $this->scrollUpByPercentage($driver, 90);
 
             $matches = $driver->findElements(WebDriverBy::xpath("//a[@data-testing-selector='FixtureCard']"));
-            $scrollDistance = (int) ($totalHeight / 2);
+            $scrollDistance = (int) ($totalHeight / 2.5); // Start scrolling from 40% of the page height
             $maxScrolls = 6;
             $scrollCount = 0;
             foreach ($matches as $keyMatches => $match) {
