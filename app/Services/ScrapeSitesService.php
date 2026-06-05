@@ -43,9 +43,7 @@ class ScrapeSitesService
                 $scriptContent = json_decode($initialStateJson, true);
             }
 
-            $driver->quit();
-
-            $matchesDataFromScripts = isset($scriptContent['data']['blocks']) ? $scriptContent['data']['blocks'][0]['events'] : [];
+            $matchesDataFromScripts = !empty($scriptContent['data']['blocks'][0]['events']) ? $scriptContent['data']['blocks'][0]['events'] : [];
             foreach ($matchesDataFromScripts as $matchScript) {
                 //don't exist the match
                 if (! isset($matchScript['participants'][0]['name']) || ! isset($matchScript['participants'][1]['name'])) {
